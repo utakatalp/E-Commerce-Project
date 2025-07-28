@@ -3,10 +3,15 @@
 ## 28.07.2025
 - Login, Register, Welcome, and Forgot Password screens have been added.
 - Navigation between the screens has been implemented.
+- A top bar for login and register screens has been added using Scaffold.
 <img width="197.5" height="411.5" alt="image" src="https://github.com/user-attachments/assets/0667a6a8-92bc-47aa-9f7a-55220bc5a4d6" />
-<img width="197.5" height="411.5" alt="image" src="https://github.com/user-attachments/assets/1bd9ef41-a72d-4c89-8437-d318c3e5886c" />
+<img width="197.5" height="411.5" alt="image" src="https://github.com/user-attachments/assets/c62fbff4-afd5-470a-9efa-f71149ccc308" />
 <img width="197.5" height="411.5" alt="image" src="https://github.com/user-attachments/assets/28407049-988b-49e2-97cb-68dd84c422b2" />
-<img width="197.5" height="411.5" alt="image" src="https://github.com/user-attachments/assets/0d5ceb14-c105-4d40-91c5-3482533ed69f" />
+<img width="197.5" height="411.5" alt="image" src="https://github.com/user-attachments/assets/9e59ed92-b578-475c-800d-9e1297358eeb" />
+
+
+
+
 
 
 
