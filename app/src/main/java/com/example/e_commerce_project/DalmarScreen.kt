@@ -15,11 +15,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.e_commerce_project.ui.screens.ForgotPasswordScreen
 import com.example.e_commerce_project.ui.screens.LoginScreen
-import com.example.e_commerce_project.ui.screens.RegisterAppBar
+
 import com.example.e_commerce_project.ui.screens.RegisterScreen
 import com.example.e_commerce_project.ui.screens.WelcomeScreen
 
-enum class DalmarScreen(){
+enum class DalmarScreen() {
     Welcome,
     Register,
     Login,
@@ -27,38 +27,38 @@ enum class DalmarScreen(){
 }
 
 
-// TOPBAR EKLENECEK HER SCREENE
+
 @Composable
 fun DalmarApp(
     navController: NavHostController = rememberNavController()
-){
-
-    var isWelcome by remember { mutableStateOf(false) }
+) {
 
 
-        NavHost(
-            navController = navController,
-            startDestination = DalmarScreen.Welcome.name,
+    NavHost(
+        navController = navController,
+        startDestination = DalmarScreen.Welcome.name,
 
         ) {
-            composable(route = DalmarScreen.Welcome.name) {
-                WelcomeScreen(
-                    onRegisterButtonClicked = { navController.navigate(DalmarScreen.Register.name)},
-                    onLoginButtonClicked = {navController.navigate(DalmarScreen.Login.name)}
-                )
-            }
-            composable(route = DalmarScreen.Register.name) {
-                RegisterScreen()
-            }
-            composable(route = DalmarScreen.Login.name) {
-                LoginScreen(onForgotPasswordButtonClicked = { navController.navigate(DalmarScreen.ForgotPassword.name)})
-            }
-            composable(route = DalmarScreen.ForgotPassword.name) {
-                ForgotPasswordScreen(onBackToLoginButtonClicked = { navController.navigate(
-                    DalmarScreen.Login.name)})
-            }
-
+        composable(route = DalmarScreen.Welcome.name) {
+            WelcomeScreen(
+                onRegisterButtonClicked = { navController.navigate(DalmarScreen.Register.name) },
+                onLoginButtonClicked = { navController.navigate(DalmarScreen.Login.name) }
+            )
         }
+        composable(route = DalmarScreen.Register.name) {
+            RegisterScreen(onNavigateBackPressed = { navController.navigate(DalmarScreen.Welcome.name) })
+        }
+        composable(route = DalmarScreen.Login.name) {
+            LoginScreen(
+                onForgotPasswordButtonClicked = { navController.navigate(DalmarScreen.ForgotPassword.name) },
+                onNavigateBackPressed = { navController.navigate(DalmarScreen.Welcome.name) }
+            )
+        }
+        composable(route = DalmarScreen.ForgotPassword.name) {
+            ForgotPasswordScreen(onBackToLoginButtonClicked = { navController.navigate(DalmarScreen.Login.name) })
+        }
+
+    }
 
 
 }

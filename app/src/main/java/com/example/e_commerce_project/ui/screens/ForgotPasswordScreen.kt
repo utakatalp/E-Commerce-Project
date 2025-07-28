@@ -65,7 +65,7 @@ fun ForgotPasswordScreen(
         TextButton(
             onClick = onBackToLoginButtonClicked,
             modifier = Modifier
-                .padding(start = 25.dp ,end = 40.dp, bottom = 40.dp),
+                .padding(bottom = 40.dp),
 
             ) {
             Text("Back to login") // Biraz daha sağa kaydırılacak
