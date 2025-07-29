@@ -9,6 +9,11 @@
 <img width="197.5" height="411.5" alt="image" src="https://github.com/user-attachments/assets/28407049-988b-49e2-97cb-68dd84c422b2" />
 <img width="197.5" height="411.5" alt="image" src="https://github.com/user-attachments/assets/9e59ed92-b578-475c-800d-9e1297358eeb" />
 
+## 29.07.2025
+- Project's architecture has been updated to MVI architecture.
+- SOLID validation functions for register operation has been added.
+- The project folder structure has been updated by package by feature.
+
 
 
 
