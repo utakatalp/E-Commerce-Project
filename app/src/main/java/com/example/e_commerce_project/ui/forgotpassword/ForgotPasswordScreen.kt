@@ -1,4 +1,4 @@
-package com.example.e_commerce_project.ui.screens
+package com.example.e_commerce_project.ui.forgotpassword
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -16,26 +15,25 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.nio.file.WatchEvent
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 @Preview
 @Composable
 fun ForgotPasswordScreen(
-    onBackToLoginButtonClicked: () -> Unit = { }
+    onBackToLoginButtonClicked: () -> Unit = { },
+    viewModel: ForgotPasswordViewModel = viewModel()
 ) {
 
-    var email by remember { mutableStateOf("") }
+    val uiState by viewModel.forgotPasswordUiState.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -46,8 +44,8 @@ fun ForgotPasswordScreen(
         Text(text = "Don't worry!", fontSize = 48.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.size(40.dp))
         TextField(
-            value = email,
-            onValueChange = { email = it },
+            value = uiState.email,
+            onValueChange = { viewModel.onIntent(ForgotPasswordIntent.EnterEmail(it)) },
             placeholder = { Text("Email") },
             leadingIcon = {
                 Icon(imageVector = Icons.Default.Email, contentDescription = "Email")
@@ -68,7 +66,7 @@ fun ForgotPasswordScreen(
                 .padding(bottom = 40.dp),
 
             ) {
-            Text("Back to login") // Biraz daha sağa kaydırılacak
+            Text("Back to login")
         }
     }
 }

@@ -1,23 +1,15 @@
 package com.example.e_commerce_project
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.e_commerce_project.ui.screens.ForgotPasswordScreen
-import com.example.e_commerce_project.ui.screens.LoginScreen
+import com.example.e_commerce_project.ui.forgotpassword.ForgotPasswordScreen
+import com.example.e_commerce_project.ui.login.LoginScreen
 
-import com.example.e_commerce_project.ui.screens.RegisterScreen
-import com.example.e_commerce_project.ui.screens.WelcomeScreen
+import com.example.e_commerce_project.ui.register.RegisterScreen
+import com.example.e_commerce_project.ui.welcome.WelcomeScreen
 
 enum class DalmarScreen() {
     Welcome,
