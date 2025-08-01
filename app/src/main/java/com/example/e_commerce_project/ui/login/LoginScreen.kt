@@ -1,9 +1,14 @@
 package com.example.e_commerce_project.ui.login
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -20,6 +25,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -32,15 +38,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.e_commerce_project.R
 
 
-@Preview
 @Composable
 fun LoginScreen(
+    onSubmitLoginButtonClicked: () -> Unit = {},
     onForgotPasswordButtonClicked: () -> Unit = {},
     onNavigateBackPressed: () -> Unit = { },
+    navigateToHome: () -> Unit,
     viewModel: LoginViewModel = viewModel()
 ) {
     val uiState by viewModel.loginUiState.collectAsState()
-
+    LaunchedEffect(Unit) {
+        viewModel.uiEffect.collect {
+            when(it) {
+                LoginUiEffect.NavigateHomeScreen -> navigateToHome()
+            }
+        }
+    }
     Scaffold(topBar = { LoginTopBar(navigateUp = onNavigateBackPressed) })
     { innerPadding ->
         Column(
@@ -50,9 +63,19 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(text = "Log In", fontSize = 40.sp, modifier = Modifier.padding(bottom = 80.dp))
-
-            Spacer(modifier = Modifier.size(12.dp))
+            Text(text = "Log In", fontSize = 40.sp, modifier = Modifier.padding(bottom = 40.dp))
+            Box(modifier = Modifier.height(40.dp)) {
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = uiState.wrongPasswordOrEmail,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    Text(
+                        text = "Wrong password or email.",
+                        fontSize = 15.sp
+                    )
+                }
+            }
 
             TextField(
                 value = uiState.email ,
@@ -71,8 +94,8 @@ fun LoginScreen(
                 leadingIcon = {
                     Icon(imageVector = Icons.Default.Lock, contentDescription = "Password")
                 }
-                // label = { Text("Enter sth.")}
             )
+
             TextButton(
                 onClick = onForgotPasswordButtonClicked,
                 Modifier
@@ -84,7 +107,8 @@ fun LoginScreen(
             }
             Spacer(modifier = Modifier.size(20.dp))
             Button(
-                onClick = { },
+                onClick = {
+                    viewModel.onIntent(LoginIntent.SubmitLogin) },
                 modifier = Modifier.size(width = 250.dp, height = 60.dp)
             ) {
                 Text("Log In")
