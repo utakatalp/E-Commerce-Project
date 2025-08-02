@@ -1,10 +1,18 @@
 package com.example.e_commerce_project.ui.login
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.e_commerce_project.ECommerceApplication
+import com.example.e_commerce_project.data.DefaultAppContainer
+import com.example.e_commerce_project.data.NetworkUserRepository
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import com.example.e_commerce_project.data.UserRepository
 import com.example.e_commerce_project.util.api.AuthRequest
 import com.example.e_commerce_project.util.api.LoginRequest
-import com.example.e_commerce_project.util.api.RetrofitInstance
+//import com.example.e_commerce_project.util.api.RetrofitInstance
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +21,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(private val userRepository: UserRepository) : ViewModel() {
     private val _loginUiState = MutableStateFlow(LoginUiState())
     val loginUiState: StateFlow<LoginUiState> = _loginUiState.asStateFlow()
 
@@ -38,7 +46,10 @@ class LoginViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.apiInterface.signIn(loginRequest)
+//                val appContainer = defaultAppContainer()
+                val response = userRepository.signIn(loginRequest)
+//                val networkUserRepository = NetworkUserRepository()
+//                val response = networkUserRepository.signIn(loginRequest)
 
                 if (response.isSuccessful && response.body()?.status == 200) {
                     _uiEffect.send(LoginUiEffect.NavigateHomeScreen)
@@ -68,6 +79,16 @@ class LoginViewModel : ViewModel() {
     private fun onEmailChange(intent: LoginIntent.EnterEmail) {
         _loginUiState.update {
             it.copy(email = intent.email)
+        }
+    }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[APPLICATION_KEY]  as ECommerceApplication)
+                val userRepository = application.container.userRepository
+                LoginViewModel(userRepository)
+            }
         }
     }
 

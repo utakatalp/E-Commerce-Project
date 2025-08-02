@@ -17,3 +17,6 @@
 ## 01.08.2025
 - API instances have been initialized using Retrofit.
 - Login and registration requests are performed via API calls under the required conditions.
+
+## 02.08.2025
+- Manual Dependency Injection has been implemented.

@@ -27,7 +27,6 @@ enum class DalmarScreen() {
 @Composable
 fun DalmarApp(
     navController: NavHostController = rememberNavController(),
-    viewModel: LoginViewModel = viewModel()
 ) {
 
     NavHost(

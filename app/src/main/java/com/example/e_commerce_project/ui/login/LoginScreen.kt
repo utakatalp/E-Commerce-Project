@@ -44,7 +44,7 @@ fun LoginScreen(
     onForgotPasswordButtonClicked: () -> Unit = {},
     onNavigateBackPressed: () -> Unit = { },
     navigateToHome: () -> Unit,
-    viewModel: LoginViewModel = viewModel()
+    viewModel: LoginViewModel = viewModel(factory = LoginViewModel.Factory)
 ) {
     val uiState by viewModel.loginUiState.collectAsState()
     LaunchedEffect(Unit) {

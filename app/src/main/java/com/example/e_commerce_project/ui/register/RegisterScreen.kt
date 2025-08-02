@@ -40,7 +40,7 @@ import com.example.e_commerce_project.R
 @Composable
 fun RegisterScreen(
     onNavigateBackPressed: () -> Unit = { },
-    viewModel: RegisterViewModel = viewModel(),
+    viewModel: RegisterViewModel = viewModel(factory = RegisterViewModel.Factory),
     navigateToHome: () -> Unit,
 ) {
     val uiState by viewModel.registerUiState.collectAsState()

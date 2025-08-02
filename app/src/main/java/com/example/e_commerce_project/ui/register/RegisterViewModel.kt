@@ -3,12 +3,20 @@ package com.example.e_commerce_project.ui.register
 import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import com.example.e_commerce_project.ECommerceApplication
+import com.example.e_commerce_project.data.DefaultAppContainer
+import com.example.e_commerce_project.data.NetworkUserRepository
+import com.example.e_commerce_project.data.UserRepository
 import com.example.e_commerce_project.ui.login.LoginUiEffect
 import com.example.e_commerce_project.util.api.AuthRequest
 import com.example.e_commerce_project.util.api.LoginRequest
 import com.example.e_commerce_project.util.api.RegisterRequest
-import com.example.e_commerce_project.util.api.RetrofitInstance
+//import com.example.e_commerce_project.util.api.RetrofitInstance
 import com.example.e_commerce_project.util.api.executeAuth
 import com.example.e_commerce_project.util.password.MinLengthRule
 import com.example.e_commerce_project.util.password.PasswordValidator
@@ -21,9 +29,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.Call
 import java.util.regex.Pattern
 
-class RegisterViewModel : ViewModel() {
+class RegisterViewModel(
+    private val userRepository: UserRepository
+) : ViewModel() {
 
     // private val _loginUiState = MutableStateFlow(LoginUiState())
     // val loginUiState: StateFlow<LoginUiState> = _loginUiState.asStateFlow()
@@ -110,23 +121,12 @@ class RegisterViewModel : ViewModel() {
     }
 
     private fun performAuthWithExtension(registerRequest: RegisterRequest) {
-        //Log.d("RegisterDebug", "Request Body: $authRequest")
-        /*
-        RetrofitInstance.apiInterface.signUp(authRequest).executeAuth(
-            onLoading = {  /*loading -> isLoading = loading */ },
-            onSuccess = { response ->
-                if (response.status == 200) {
-                    viewModelScope.launch {
-                        _uiEffect.send(RegisterUiEffect.NavigateHomeScreen)
-                    }
-                }
-                Log.d("RegisterDebug", "Response: $response") // <-- DEBUG LOG
-            })
 
-         */
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.apiInterface.signUp(registerRequest)
+//                val networkUserRepository = NetworkUserRepository()
+//                val response = networkUserRepository.signUp(registerRequest)
+                val response = userRepository.signUp(registerRequest)
 
                 if (response.isSuccessful && response.body()?.status == 200) {
                     _uiEffect.send(RegisterUiEffect.NavigateHomeScreen)
@@ -151,5 +151,15 @@ class RegisterViewModel : ViewModel() {
         val pattern = Pattern.compile(regex)
         val matcher = pattern.matcher(email)
         return matcher.matches()
+    }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[APPLICATION_KEY] as ECommerceApplication)
+                val userRepository = application.container.userRepository
+                RegisterViewModel(userRepository)
+            }
+        }
     }
 }
