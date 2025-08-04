@@ -12,6 +12,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -21,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -34,14 +36,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.e_commerce_project.R
 
 
-@Preview
+
 @Composable
 fun RegisterScreen(
     onNavigateBackPressed: () -> Unit = { },
-    viewModel: RegisterViewModel = viewModel()
+    viewModel: RegisterViewModel = viewModel(factory = RegisterViewModel.Factory),
+    navigateToHome: () -> Unit,
 ) {
     val uiState by viewModel.registerUiState.collectAsState()
     val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        viewModel.uiEffect.collect {
+            when(it) {
+                RegisterUiEffect.NavigateHomeScreen -> navigateToHome()
+            }
+        }
+    }
 
     Scaffold(
         topBar = { RegisterTopBar(navigateUp = onNavigateBackPressed) }
@@ -64,16 +74,7 @@ fun RegisterScreen(
                 // label = { Text("Enter sth.")}
             )
             Spacer(modifier = Modifier.size(20.dp))
-            TextField(
-                value = uiState.surname,
-                onValueChange = { viewModel.onIntent(RegisterIntent.EnterSurname(it)) },
-                placeholder = { Text("Surname") },
-                leadingIcon = {
-                    Icon(imageVector = Icons.Default.AccountCircle, contentDescription = "Surname")
-                }
-                // label = { Text("Enter sth.")}
-            )
-            Spacer(modifier = Modifier.size(20.dp))
+
             TextField(
                 value = uiState.email,
                 onValueChange = { viewModel.onIntent(RegisterIntent.EnterEmail(it)) },
@@ -81,10 +82,18 @@ fun RegisterScreen(
                 leadingIcon = {
                     Icon(imageVector = Icons.Default.Email, contentDescription = "Email")
                 }
-
+            )
+            Spacer(modifier = Modifier.size(20.dp))
+            TextField(
+                value = uiState.phone,
+                onValueChange = { viewModel.onIntent(RegisterIntent.EnterPhone(it)) },
+                placeholder = { Text("Phone") },
+                leadingIcon = {
+                    Icon(imageVector = Icons.Default.Phone, contentDescription = "Email")
+                }
             )
             if(uiState.warning != null) {
-                uiState.warning!!.forEach { warning ->
+                uiState.warning.forEach { warning ->
                     Text(text = warning.errorMessage.orEmpty())
                 }
             }

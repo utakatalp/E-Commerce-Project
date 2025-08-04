@@ -1,24 +1,49 @@
 package com.example.e_commerce_project.ui.register
 
+import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import com.example.e_commerce_project.ECommerceApplication
+import com.example.e_commerce_project.data.DefaultAppContainer
+import com.example.e_commerce_project.data.NetworkUserRepository
+import com.example.e_commerce_project.data.UserRepository
+import com.example.e_commerce_project.ui.login.LoginUiEffect
+import com.example.e_commerce_project.util.api.AuthRequest
+import com.example.e_commerce_project.util.api.LoginRequest
+import com.example.e_commerce_project.util.api.RegisterRequest
+//import com.example.e_commerce_project.util.api.RetrofitInstance
+import com.example.e_commerce_project.util.api.executeAuth
 import com.example.e_commerce_project.util.password.MinLengthRule
 import com.example.e_commerce_project.util.password.PasswordValidator
 import com.example.e_commerce_project.util.password.UppercaseRule
 import com.example.e_commerce_project.util.password.ValidationResult
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import okhttp3.Call
 import java.util.regex.Pattern
 
-class RegisterViewModel : ViewModel() {
+class RegisterViewModel(
+    private val userRepository: UserRepository
+) : ViewModel() {
 
     // private val _loginUiState = MutableStateFlow(LoginUiState())
     // val loginUiState: StateFlow<LoginUiState> = _loginUiState.asStateFlow()
 
     private val _registerUiState = MutableStateFlow(RegisterUiState())
     val registerUiState: StateFlow<RegisterUiState> = _registerUiState.asStateFlow()
+
+    val _uiEffect = Channel<RegisterUiEffect>()
+    val uiEffect = _uiEffect.receiveAsFlow()
 
     val rules = listOf(
         MinLengthRule(8),
@@ -29,59 +54,92 @@ class RegisterViewModel : ViewModel() {
 
     fun onIntent(intent: RegisterIntent) {
         when (intent) {
-            is RegisterIntent.EnterEmail -> {
-                onEmailChange(intent)
+            is RegisterIntent.EnterEmail -> onEmailChange(intent)
+            is RegisterIntent.EnterName -> onNameChange(intent)
+            is RegisterIntent.EnterPassword -> onPasswordChange(intent)
+            is RegisterIntent.EnterPhone -> onPhoneChange(intent)
+            is RegisterIntent.SubmitRegister -> onSubmit()
+        }
+    }
+
+    private fun onPhoneChange(intent: RegisterIntent.EnterPhone) {
+        _registerUiState.update {
+            it.copy(phone = intent.phone)
+        }
+    }
+
+    private fun onSubmit() {
+        val passwordWarnings = validator.validate(registerUiState.value.password)
+        val warnings = mutableListOf<ValidationResult>()
+        warnings += passwordWarnings
+
+        if (!isValidEmail(registerUiState.value.email)) {
+            _registerUiState.update {
+                it.copy(
+                    warning = it.warning + ValidationResult(
+                        false,
+                        "Invalid Email"
+                    )
+                )
             }
+            warnings += ValidationResult(false, "Your email is invalid.")
+        }
+        _registerUiState.update {
+            it.copy(warning = warnings)
+        }
+        if (warnings.isEmpty()) {
+            val registerRequest = RegisterRequest(
+                email = registerUiState.value.email,
+                password = registerUiState.value.password,
+                name = registerUiState.value.name,
+                phone = registerUiState.value.phone,
+                address = "teknasyon"
+            )
+            performAuthWithExtension(registerRequest)
+        }
+    }
 
-            is RegisterIntent.EnterName -> {
-                _registerUiState.update {
-                    it.copy(name = intent.name)
-                }
-            }
 
-            is RegisterIntent.EnterPassword -> {
-                _registerUiState.update {
-                    it.copy(password = intent.password)
-                }
-            }
 
-            is RegisterIntent.EnterSurname -> {
-                _registerUiState.update {
-                    it.copy(surname = intent.surname)
-                }
-            }
 
-            is RegisterIntent.SubmitRegister -> {
-                val passwordWarnings = validator.validate(registerUiState.value.password)
-                val warnings = mutableListOf<ValidationResult>()
-                warnings += passwordWarnings
+    private fun onPasswordChange(intent: RegisterIntent.EnterPassword) {
+        _registerUiState.update {
+            it.copy(password = intent.password)
+        }
+    }
 
-                if (!isValidEmail(registerUiState.value.email)) {
-                    _registerUiState.update { it.copy(warning = it.warning + ValidationResult(false, "Invalid Email")) }
-                    warnings += ValidationResult(false, "Your email is invalid.")
-                }
-                /*
-                if (warnings.isNotEmpty()) {
-                    _registerUiState.update {
-                        it.copy(warning = warnings)
-                    }
-                } else {
-                    _registerUiState.update {
-                        it.copy(warning = emptyList())
-                    }
-
-                }
-                */
-                _registerUiState.update {
-                    it.copy(warning = warnings)
-                }
-            }
+    private fun onNameChange(intent: RegisterIntent.EnterName) {
+        _registerUiState.update {
+            it.copy(name = intent.name)
         }
     }
 
     private fun onEmailChange(intent: RegisterIntent.EnterEmail) {
         _registerUiState.update {
             it.copy(email = intent.email)
+        }
+    }
+
+    private fun performAuthWithExtension(registerRequest: RegisterRequest) {
+
+        viewModelScope.launch {
+            try {
+//                val networkUserRepository = NetworkUserRepository()
+//                val response = networkUserRepository.signUp(registerRequest)
+                val response = userRepository.signUp(registerRequest)
+
+                if (response.isSuccessful && response.body()?.status == 200) {
+                    _uiEffect.send(RegisterUiEffect.NavigateHomeScreen)
+                }
+            } catch (e: Exception){
+                _registerUiState.update {
+                    it.copy(
+                        errorMessage = e,
+                    )
+                }
+            }
+
+
         }
     }
 
@@ -94,11 +152,14 @@ class RegisterViewModel : ViewModel() {
         val matcher = pattern.matcher(email)
         return matcher.matches()
     }
-    /*
-    private fun isValidPassword(password: String): Boolean {
-        if(password.length < 8) return false
-        if(password.star)
-    }
-    */
 
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[APPLICATION_KEY] as ECommerceApplication)
+                val userRepository = application.container.userRepository
+                RegisterViewModel(userRepository)
+            }
+        }
+    }
 }

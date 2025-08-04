@@ -4,9 +4,12 @@ import com.example.e_commerce_project.util.password.ValidationResult
 
 data class RegisterUiState(
     val name: String = "",
-    val surname: String = "",
-    var email: String = "",
+    val email: String = "",
+    val phone: String = "",
     val password: String = "",
-    val warning: List<ValidationResult> = emptyList()
-
+    val warning: List<ValidationResult> = emptyList(),
+    val errorMessage: Exception? = null
 )
+sealed interface RegisterUiEffect {
+    data object NavigateHomeScreen: RegisterUiEffect
+}
