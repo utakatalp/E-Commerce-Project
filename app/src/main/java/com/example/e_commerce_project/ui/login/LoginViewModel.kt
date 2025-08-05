@@ -9,56 +9,72 @@ import com.example.e_commerce_project.ECommerceApplication
 import com.example.e_commerce_project.data.DefaultAppContainer
 import com.example.e_commerce_project.data.NetworkUserRepository
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import com.example.e_commerce_project.data.EmailOrPasswordErrorException
+import com.example.e_commerce_project.data.FakeUserRepository
 import com.example.e_commerce_project.data.UserRepository
-import com.example.e_commerce_project.util.api.AuthRequest
 import com.example.e_commerce_project.util.api.LoginRequest
+import dagger.hilt.android.lifecycle.HiltViewModel
 //import com.example.e_commerce_project.util.api.RetrofitInstance
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
-class LoginViewModel(private val userRepository: UserRepository) : ViewModel() {
-    private val _loginUiState = MutableStateFlow(LoginUiState())
-    val loginUiState: StateFlow<LoginUiState> = _loginUiState.asStateFlow()
-
-    val _uiEffect = Channel<LoginUiEffect>()
-    val uiEffect = _uiEffect.receiveAsFlow()
+import javax.inject.Inject
 
 
-    fun onIntent(intent: LoginIntent) {
+@HiltViewModel
+open class LoginViewModel @Inject constructor(
+    private val userRepository: UserRepository
+) : ViewModel() {
+
+    internal val _loginUiState = MutableStateFlow(LoginUiState())
+    open val loginUiState: StateFlow<LoginUiState> = _loginUiState.asStateFlow()
+
+    private val _uiEffect = Channel<LoginUiEffect>()
+    open val uiEffect = _uiEffect.receiveAsFlow()
+
+
+    open fun onIntent(intent: LoginIntent) {
         when (intent) {
             is LoginIntent.EnterEmail -> onEmailChange(intent)
             is LoginIntent.EnterPassword -> onPasswordChange(intent)
+            is LoginIntent.ShowPassword -> onPasswordToggle()
             is LoginIntent.SubmitLogin -> {
-                val loginRequest =
-                    LoginRequest(loginUiState.value.email, loginUiState.value.password)
-                performAuthWithExtension(loginRequest)
+                performAuthWithExtension()
             }
         }
     }
 
+    private fun onPasswordToggle() {
+        _loginUiState.update { it.copy(showPassword = !loginUiState.value.showPassword) }
+    }
 
-    private fun performAuthWithExtension(loginRequest: LoginRequest) {
+
+    private fun performAuthWithExtension() {
 
         viewModelScope.launch {
             try {
-//                val appContainer = defaultAppContainer()
+                val loginRequest =
+                    LoginRequest(loginUiState.value.email, loginUiState.value.password)
                 val response = userRepository.signIn(loginRequest)
-//                val networkUserRepository = NetworkUserRepository()
-//                val response = networkUserRepository.signIn(loginRequest)
 
-                if (response.isSuccessful && response.body()?.status == 200) {
-                    _uiEffect.send(LoginUiEffect.NavigateHomeScreen)
-                } else {
-                    _loginUiState.update {
-                        it.copy(wrongPasswordOrEmail = true)
+                response
+                    .onSuccess {
+                        _uiEffect.send(LoginUiEffect.NavigateHomeScreen)
                     }
-                }
-            } catch (e: Exception){
+                    .onFailure {
+                        if (it is EmailOrPasswordErrorException) {
+                            _loginUiState.update {
+                                it.copy(wrongPasswordOrEmail = true)
+                            }
+                        }
+                    }
+            } catch (e: Exception) {
                 _loginUiState.update {
                     it.copy(
                         errorMessage = e,
@@ -82,15 +98,31 @@ class LoginViewModel(private val userRepository: UserRepository) : ViewModel() {
         }
     }
 
+    /*
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val application = (this[APPLICATION_KEY]  as ECommerceApplication)
+                val application = (this[APPLICATION_KEY] as ECommerceApplication)
                 val userRepository = application.container.userRepository
                 LoginViewModel(userRepository)
             }
         }
     }
 
+     */
 
+
+}
+
+class FakeLoginViewModel : LoginViewModel(FakeUserRepository()) {
+    init {
+        // Set a sample state for preview
+        _loginUiState.value = LoginUiState(
+            email = "preview@email.com",
+            password = "123456",
+            wrongPasswordOrEmail = true
+        )
+    }
+
+    // Optionally override other behavior if needed
 }

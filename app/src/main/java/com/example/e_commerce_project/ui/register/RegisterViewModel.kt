@@ -10,10 +10,10 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import com.example.e_commerce_project.ECommerceApplication
 import com.example.e_commerce_project.data.DefaultAppContainer
+import com.example.e_commerce_project.data.ExistingUser
 import com.example.e_commerce_project.data.NetworkUserRepository
 import com.example.e_commerce_project.data.UserRepository
 import com.example.e_commerce_project.ui.login.LoginUiEffect
-import com.example.e_commerce_project.util.api.AuthRequest
 import com.example.e_commerce_project.util.api.LoginRequest
 import com.example.e_commerce_project.util.api.RegisterRequest
 //import com.example.e_commerce_project.util.api.RetrofitInstance
@@ -22,6 +22,7 @@ import com.example.e_commerce_project.util.password.MinLengthRule
 import com.example.e_commerce_project.util.password.PasswordValidator
 import com.example.e_commerce_project.util.password.UppercaseRule
 import com.example.e_commerce_project.util.password.ValidationResult
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,8 +32,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okhttp3.Call
 import java.util.regex.Pattern
+import javax.inject.Inject
 
-class RegisterViewModel(
+@HiltViewModel
+class RegisterViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
@@ -59,6 +62,7 @@ class RegisterViewModel(
             is RegisterIntent.EnterPassword -> onPasswordChange(intent)
             is RegisterIntent.EnterPhone -> onPhoneChange(intent)
             is RegisterIntent.SubmitRegister -> onSubmit()
+            is RegisterIntent.ShowPassword -> { _registerUiState.update { it.copy(showPassword = !registerUiState.value.showPassword) }}
         }
     }
 
@@ -74,19 +78,14 @@ class RegisterViewModel(
         warnings += passwordWarnings
 
         if (!isValidEmail(registerUiState.value.email)) {
-            _registerUiState.update {
-                it.copy(
-                    warning = it.warning + ValidationResult(
-                        false,
-                        "Invalid Email"
-                    )
-                )
-            }
             warnings += ValidationResult(false, "Your email is invalid.")
         }
         _registerUiState.update {
-            it.copy(warning = warnings)
+            it.copy(
+                warning = (warnings)
+            )
         }
+
         if (warnings.isEmpty()) {
             val registerRequest = RegisterRequest(
                 email = registerUiState.value.email,
@@ -95,11 +94,20 @@ class RegisterViewModel(
                 phone = registerUiState.value.phone,
                 address = "teknasyon"
             )
-            performAuthWithExtension(registerRequest)
+            performAuthWithExtension(registerRequest) { result ->
+                if (result != null) {
+                    _registerUiState.update {
+                        it.copy(
+                            warning = (warnings + ValidationResult(
+                                false,
+                                result
+                            ))
+                        )
+                    }
+                }
+            }
         }
     }
-
-
 
 
     private fun onPasswordChange(intent: RegisterIntent.EnterPassword) {
@@ -120,27 +128,36 @@ class RegisterViewModel(
         }
     }
 
-    private fun performAuthWithExtension(registerRequest: RegisterRequest) {
-
+    private fun performAuthWithExtension(
+        registerRequest: RegisterRequest,
+        onResult: (String?) -> Unit
+    ) {
         viewModelScope.launch {
             try {
-//                val networkUserRepository = NetworkUserRepository()
-//                val response = networkUserRepository.signUp(registerRequest)
+
                 val response = userRepository.signUp(registerRequest)
 
-                if (response.isSuccessful && response.body()?.status == 200) {
-                    _uiEffect.send(RegisterUiEffect.NavigateHomeScreen)
-                }
-            } catch (e: Exception){
+                response
+                    .onSuccess {
+                        _uiEffect.send(RegisterUiEffect.NavigateHomeScreen)
+                        onResult(null)
+                    }
+                    .onFailure {
+                        if (it is ExistingUser) {
+                            onResult("The email is already used.")
+                        }
+                    }
+
+            } catch (e: Exception) {
                 _registerUiState.update {
                     it.copy(
                         errorMessage = e,
                     )
                 }
+                onResult("An exception occurred.")
             }
-
-
         }
+
     }
 
     private fun isValidEmail(email: String): Boolean {
@@ -153,6 +170,7 @@ class RegisterViewModel(
         return matcher.matches()
     }
 
+    /*
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -162,4 +180,6 @@ class RegisterViewModel(
             }
         }
     }
+
+     */
 }

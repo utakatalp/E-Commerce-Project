@@ -7,4 +7,5 @@ sealed interface RegisterIntent {
     object SubmitRegister : RegisterIntent
     data class EnterPassword(val password: String) : RegisterIntent
     data class EnterPhone(val phone: String) : RegisterIntent
+    object ShowPassword : RegisterIntent
 }

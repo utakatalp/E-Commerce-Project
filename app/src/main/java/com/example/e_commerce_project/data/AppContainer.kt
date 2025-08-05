@@ -22,6 +22,11 @@ class DefaultAppContainer : AppContainer {
 
     private val apiInterface: ApiInterface by lazy {
         retrofit.create(ApiInterface::class.java)
+        /*
+        Interfaceler constructor ile çağırılamadığı için retrofit.create(...) gibi bir methodla
+        instance yaratılıyor. Bu instance, Retrofit’in kendi
+        iç mekanizmasıyla dinamik olarak oluşturulmuş bir sınıf.
+         */
     }
 
     override val userRepository: UserRepository by lazy {
