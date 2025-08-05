@@ -20,3 +20,8 @@
 
 ## 02.08.2025
 - Manual Dependency Injection has been implemented.
+
+## 03.08.2025
+- Manual dependency injection has been removed; dependency injection is now provided by Hilt.
+- Some visual bugs on the password screens have been fixed.
+-Navigation operations for going back are now handled by the back stack, and so on.
