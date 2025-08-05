@@ -41,20 +41,28 @@ fun DalmarApp(
             )
         }
         composable(route = DalmarScreen.Register.name) {
-            RegisterScreen(onNavigateBackPressed = { navController.navigate(DalmarScreen.Welcome.name) },
+            RegisterScreen(onNavigateBackPressed = { navController.popBackStack() },
                 navigateToHome = { navController.navigate(DalmarScreen.Home.name) }
             )
         }
         composable(route = DalmarScreen.Login.name) {
             LoginScreen(
                 onForgotPasswordButtonClicked = { navController.navigate(DalmarScreen.ForgotPassword.name) },
-                onNavigateBackPressed = { navController.navigate(DalmarScreen.Welcome.name) },
+                onNavigateBackPressed = { navController.popBackStack() },
                 onSubmitLoginButtonClicked = { },
-                navigateToHome = { navController.navigate(DalmarScreen.Home.name) }
+                navigateToHome = { navController.navigate(DalmarScreen.Home.name){
+                    popUpTo(DalmarScreen.Welcome.name) {
+                        inclusive = true
+                    }
+                } }
             )
         }
         composable(route = DalmarScreen.ForgotPassword.name) {
-            ForgotPasswordScreen(onBackToLoginButtonClicked = { navController.navigate(DalmarScreen.Login.name) })
+            ForgotPasswordScreen(onBackToLoginButtonClicked = { navController.navigate(DalmarScreen.Login.name){
+                popUpTo(DalmarScreen.Login.name) {
+                    inclusive = true
+                }
+            } })
         }
         composable(route = DalmarScreen.Home.name) {
             HomeScreen()

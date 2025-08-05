@@ -8,7 +8,8 @@ data class RegisterUiState(
     val phone: String = "",
     val password: String = "",
     val warning: List<ValidationResult> = emptyList(),
-    val errorMessage: Exception? = null
+    val errorMessage: Exception? = null,
+    var showPassword: Boolean = false
 )
 sealed interface RegisterUiEffect {
     data object NavigateHomeScreen: RegisterUiEffect

@@ -3,9 +3,11 @@ package com.example.e_commerce_project.ui.login
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -14,7 +16,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
+
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,12 +33,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.e_commerce_project.R
 
@@ -43,13 +54,13 @@ fun LoginScreen(
     onSubmitLoginButtonClicked: () -> Unit = {},
     onForgotPasswordButtonClicked: () -> Unit = {},
     onNavigateBackPressed: () -> Unit = { },
-    navigateToHome: () -> Unit,
-    viewModel: LoginViewModel = viewModel(factory = LoginViewModel.Factory)
+    navigateToHome: () -> Unit = {},
+    viewModel: LoginViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.loginUiState.collectAsState()
     LaunchedEffect(Unit) {
         viewModel.uiEffect.collect {
-            when(it) {
+            when (it) {
                 LoginUiEffect.NavigateHomeScreen -> navigateToHome()
             }
         }
@@ -78,22 +89,35 @@ fun LoginScreen(
             }
 
             TextField(
-                value = uiState.email ,
+                value = uiState.email,
                 onValueChange = { viewModel.onIntent(LoginIntent.EnterEmail(it)) },
                 placeholder = { Text("Email") },
                 leadingIcon = {
                     Icon(imageVector = Icons.Default.Email, contentDescription = "Email")
                 }
-                // label = { Text("Enter sth.")}
             )
             Spacer(modifier = Modifier.size(20.dp))
+
+
             TextField(
                 value = uiState.password,
                 onValueChange = { viewModel.onIntent(LoginIntent.EnterPassword(it)) },
                 placeholder = { Text("Password") },
                 leadingIcon = {
                     Icon(imageVector = Icons.Default.Lock, contentDescription = "Password")
-                }
+                },
+                trailingIcon = {
+                    Icon(
+                        imageVector = if (uiState.showPassword) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                        contentDescription = if (uiState.showPassword) "Hide password" else "Show password",
+                        modifier = Modifier.clickable { viewModel.onIntent(LoginIntent.ShowPassword)}
+                    )
+                },
+                visualTransformation = if (uiState.showPassword) {
+                    VisualTransformation.None
+                } else {
+                    PasswordVisualTransformation()
+                },
             )
 
             TextButton(
@@ -108,7 +132,8 @@ fun LoginScreen(
             Spacer(modifier = Modifier.size(20.dp))
             Button(
                 onClick = {
-                    viewModel.onIntent(LoginIntent.SubmitLogin) },
+                    viewModel.onIntent(LoginIntent.SubmitLogin)
+                },
                 modifier = Modifier.size(width = 250.dp, height = 60.dp)
             ) {
                 Text("Log In")
@@ -117,6 +142,7 @@ fun LoginScreen(
     }
 
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginTopBar(
@@ -134,5 +160,19 @@ fun LoginTopBar(
                 )
             }
         }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LoginScreenPreview() {
+    val viewModel = remember { FakeLoginViewModel() }
+
+    LoginScreen(
+        viewModel = viewModel,
+        onSubmitLoginButtonClicked = {},
+        onForgotPasswordButtonClicked = {},
+        onNavigateBackPressed = {},
+        navigateToHome = {}
     )
 }
