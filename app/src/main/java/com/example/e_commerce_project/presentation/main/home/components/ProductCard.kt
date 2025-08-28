@@ -23,6 +23,7 @@ import com.example.e_commerce_project.presentation.main.home.HomeIntent
 fun ProductCard(
     onIntent: (HomeIntent) -> Unit,
     product: Product,
+    storeName: String,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -32,7 +33,14 @@ fun ProductCard(
             )
             .padding(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        onClick = { onIntent(HomeIntent.onProductClick(product.id.toString())) }
+        onClick = {
+            onIntent(
+                HomeIntent.onProductClick(
+                    id = product.id.toString(),
+                    storeName = storeName
+                )
+            )
+        }
     ) {
         Column(
             modifier = Modifier

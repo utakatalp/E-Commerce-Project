@@ -13,6 +13,8 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getUserId(): String? {
+        val userId = local.getUserId()
+        Log.d("UserPreferencesRepository", "Retrieved user ID: $userId")
         return local.getUserId()
     }
 

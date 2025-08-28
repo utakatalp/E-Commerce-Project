@@ -1,4 +1,4 @@
-package com.example.e_commerce_project.data.remote.dto
+package com.example.e_commerce_project.domain.model
 
 data class Category(
     val name: String,

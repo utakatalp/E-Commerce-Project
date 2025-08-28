@@ -1,17 +1,21 @@
 package com.example.e_commerce_project.presentation.main.home
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import com.example.e_commerce_project.domain.model.Product
-import com.example.e_commerce_project.presentation.main.home.components.LogOutCard
+import com.example.e_commerce_project.presentation.main.home.components.CategoryCard
 import com.example.e_commerce_project.presentation.main.home.components.ProductCard
+import com.example.e_commerce_project.presentation.main.home.components.TopBar
 
 
 // Dummy data classes
@@ -41,8 +45,17 @@ fun HomeContent(
     uiState: HomeUiState.Success,
     onIntent: (HomeIntent) -> Unit
 ) {
-    Column {
-        LogOutCard { onIntent(HomeIntent.onLogoutClick) }
+    Column(modifier = modifier) {
+        TopBar(
+            onIntent = onIntent,
+            user = uiState.user,
+        )
+        LazyRow {
+            items(uiState.stores[0].categories.size) { index ->
+                val category = uiState.stores[0].categories[index]
+                CategoryCard(category = category)
+            }
+        }
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
         ) {
@@ -52,7 +65,8 @@ fun HomeContent(
                         val product = store.products[index]
                         ProductCard(
                             onIntent = onIntent,
-                            product = product
+                            product = product,
+                            storeName = store.name
                         )
                     }
                 }

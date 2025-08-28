@@ -28,13 +28,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.e_commerce_project.DalmarApp
-import com.example.e_commerce_project.DalmarScreen
 import com.example.e_commerce_project.LocalNavController
 import com.example.e_commerce_project.NavigationCollector
 import com.example.e_commerce_project.NavigationEffect
+import com.example.e_commerce_project.presentation.main.cart.CartScreen
 import com.example.e_commerce_project.presentation.main.home.HomeScreen
 import com.example.e_commerce_project.presentation.main.home.HomeViewModel
+import com.example.e_commerce_project.presentation.main.productdetail.ProductDetailScreen
+import com.example.e_commerce_project.presentation.main.productdetail.ProductDetailViewModel
+import com.example.e_commerce_project.presentation.main.profile.ProfileScreen
 import kotlinx.coroutines.flow.Flow
 
 
@@ -42,18 +44,21 @@ val LocalNavController = staticCompositionLocalOf<NavHostController> {
     error("NavController not provided")
 }
 
+// navController.currentBackStack.value[1].destination.route.toString()
 @Composable
-fun MainNavigation() {
+fun MainNavigation(parentNavController: NavHostController) {
     val navController: NavHostController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
-    val showBottomBar = currentRoute in listOf("home", "cart", "profile")
-
+    var currentRoute = navBackStackEntry?.destination?.route
+    if (navController.currentBackStack.value.isNotEmpty()) {
+        currentRoute = navController.currentBackStack.value[1].destination.route
+    }
+    val dontShowBottomBar = currentRoute in listOf("home", "cart", "profile")
 
     CompositionLocalProvider(LocalNavController provides navController) {
         Scaffold(
             bottomBar = {
-                if (showBottomBar) {
+                if (true) {
                     NavigationBar {
                         bottomNavigationItems.forEach { item ->
                             val isSelected = (item.title.lowercase() == currentRoute)
@@ -71,7 +76,7 @@ fun MainNavigation() {
                                     )
                                 },
                                 onClick = {
-                                    navController.navigate(item.title) {
+                                    navController.navigate(item.title.lowercase()) {
                                         popUpTo(navController.graph.startDestinationId) {
                                             saveState = true
                                         }
@@ -87,21 +92,47 @@ fun MainNavigation() {
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = "home"
+                startDestination = "home",
+                modifier = Modifier.padding(innerPadding)
             ) {
                 composable("home") {
                     val viewModel = hiltViewModel<HomeViewModel>()
                     val uiState by viewModel.uiState.collectAsState()
                     HomeScreen(
-                        modifier = Modifier.padding(innerPadding),
+                        modifier = Modifier,
                         uiState = uiState,
                         onIntent = { viewModel.onIntent(it) }
                     )
-                    NavigationCollector(viewModel.navEffect, clearBackStack = true)
+                    LaunchedEffect(Unit) {
+                        viewModel.logOutEffect.collect {
+                            parentNavController.navigate(it.route) {
+                                val destRoute =
+                                    navController.currentBackStack.value[1].destination.route.toString()
+                                popUpTo(destRoute) {
+                                    inclusive = true
+                                }
+                            }
+                        }
+                    }
+                    NavigationCollector(viewModel.navEffect)
                 }
-                composable(DalmarScreen.WELCOME.name) {
-                    DalmarApp()
+                composable("cart") {
+                    CartScreen()
                 }
+                composable("profile") {
+                    ProfileScreen()
+                }
+                composable("product_detail/{storeName}/{productId}") {
+                    val viewModel = hiltViewModel<ProductDetailViewModel>()
+                    val uiState by viewModel.uiState.collectAsState()
+                    ProductDetailScreen(
+                        uiState = uiState,
+                        onIntent = { viewModel.onIntent(it) }
+                    )
+                }
+//                composable(DalmarScreen.WELCOME.name) {
+//                    DalmarApp()
+//                }
             }
 
         }

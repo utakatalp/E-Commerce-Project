@@ -3,6 +3,11 @@ package com.example.e_commerce_project.data.remote.dto
 import com.example.e_commerce_project.domain.model.Product
 
 
+data class ProductResponseDto(
+    val product: ProductDto,
+    val status: Int,
+    val message: String
+)
 data class ProductsResponseDto(
     val products: List<ProductDto>,
     val status: Int,

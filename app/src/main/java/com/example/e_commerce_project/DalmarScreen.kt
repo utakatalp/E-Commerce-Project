@@ -1,15 +1,12 @@
 package com.example.e_commerce_project
 
 import android.util.Log
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -22,10 +19,10 @@ import com.example.e_commerce_project.presentation.auth.login.LoginScreen
 import com.example.e_commerce_project.presentation.auth.login.LoginViewModel
 import com.example.e_commerce_project.presentation.auth.register.RegisterScreen
 import com.example.e_commerce_project.presentation.auth.register.RegisterViewModel
-import com.example.e_commerce_project.presentation.splash.SplashScreen
-import com.example.e_commerce_project.presentation.splash.SplashViewModel
 import com.example.e_commerce_project.presentation.auth.welcome.WelcomeScreen
 import com.example.e_commerce_project.presentation.auth.welcome.WelcomeViewModel
+import com.example.e_commerce_project.presentation.splash.SplashScreen
+import com.example.e_commerce_project.presentation.splash.SplashViewModel
 import kotlinx.coroutines.flow.Flow
 
 enum class DalmarScreen() {
@@ -50,61 +47,60 @@ fun DalmarApp(
 ) {
     CompositionLocalProvider(LocalNavController provides navController) {
 
-        Scaffold { padding ->
-            NavHost(
-                navController = navController,
-                startDestination = DalmarScreen.SPLASH.name,
-                modifier = Modifier.padding(padding)
-            ) {
-                composable(route = DalmarScreen.SPLASH.name) {
-                    val viewModel = hiltViewModel<SplashViewModel>()
-                    SplashScreen()
-                    NavigationCollector(viewModel.navEffect, clearBackStack = true)
-                }
-                composable(route = DalmarScreen.WELCOME.name) {
-                    val viewModel = hiltViewModel<WelcomeViewModel>()
-                    WelcomeScreen(
-                        onIntent = { viewModel.onIntent(it) }
-                    )
-                    NavigationCollector(viewModel.navEffect)
-                }
-                composable(route = DalmarScreen.REGISTER.name) {
-                    val viewModel = hiltViewModel<RegisterViewModel>()
-                    val uiState by viewModel.registerUiState.collectAsState()
-                    RegisterScreen(
-                        onIntent = { viewModel.onIntent(it) },
-                        uiState = uiState,
-                    )
-                    NavigationCollector(viewModel.navEffect, clearBackStack = true)
-                }
-                composable(route = DalmarScreen.LOGIN.name) {
-                    val viewModel = hiltViewModel<LoginViewModel>()
-                    val uiState by viewModel.loginUiState.collectAsState()
-                    LoginScreen(
-                        onIntent = { viewModel.onIntent(it) },
-                        uiState = uiState,
-                    )
-                    NavigationCollector(
-                        viewModel.navEffect,
-                        clearBackStack = true
-                    )
-                }
-                composable(route = DalmarScreen.FORGOT_PASSWORD.name) {
-                    val viewModel = hiltViewModel<ForgotPasswordViewModel>()
-                    val uiState by viewModel.forgotPasswordUiState.collectAsState()
-                    ForgotPasswordScreen(
-                        onIntent = { viewModel.onIntent(it) },
-                        uiState = uiState
-                    )
-                    NavigationCollector(
-                        viewModel.navEffect
-                    )
-                }
-                composable(route = DalmarScreen.HOME.name) {
-                    MainNavigation()
-                }
+        NavHost(
+            navController = navController,
+            startDestination = DalmarScreen.SPLASH.name,
+        ) {
+            composable(route = DalmarScreen.SPLASH.name) {
+                val viewModel = hiltViewModel<SplashViewModel>()
+                SplashScreen()
+                NavigationCollector(viewModel.navEffect, clearBackStack = true)
+            }
+            composable(route = DalmarScreen.WELCOME.name) {
+                val viewModel = hiltViewModel<WelcomeViewModel>()
+                WelcomeScreen(
+                    onIntent = { viewModel.onIntent(it) }
+                )
+                NavigationCollector(viewModel.navEffect)
+            }
+            composable(route = DalmarScreen.REGISTER.name) {
+                val viewModel = hiltViewModel<RegisterViewModel>()
+                val uiState by viewModel.registerUiState.collectAsState()
+                RegisterScreen(
+                    onIntent = { viewModel.onIntent(it) },
+                    uiState = uiState
+                )
+                NavigationCollector(viewModel.navEffect, clearBackStack = true)
+            }
+            composable(route = DalmarScreen.LOGIN.name) {
+                val viewModel = hiltViewModel<LoginViewModel>()
+                val uiState by viewModel.loginUiState.collectAsState()
+                LoginScreen(
+                    onIntent = { viewModel.onIntent(it) },
+                    uiState = uiState,
+                )
+                NavigationCollector(
+                    viewModel.navEffect,
+                    clearBackStack = true
+                )
+            }
+            composable(route = DalmarScreen.FORGOT_PASSWORD.name) {
+                val viewModel = hiltViewModel<ForgotPasswordViewModel>()
+                val uiState by viewModel.forgotPasswordUiState.collectAsState()
+                ForgotPasswordScreen(
+                    onIntent = { viewModel.onIntent(it) },
+                    uiState = uiState
+                )
+                NavigationCollector(
+                    viewModel.navEffect
+                )
+            }
+            composable(route = DalmarScreen.HOME.name) {
+                MainNavigation(parentNavController = navController)
+
             }
         }
+
     }
 
 }
@@ -129,7 +125,8 @@ fun NavigationCollector(
         navigationEffect.collect {
             navController.navigate(it.route) {
                 if (clearBackStack) {
-                    val destRoute = navController.currentBackStack.value[1].destination.route.toString()
+                    val destRoute =
+                        navController.currentBackStack.value[1].destination.route.toString()
                     popUpTo(destRoute) {
                         inclusive = true
                     }
