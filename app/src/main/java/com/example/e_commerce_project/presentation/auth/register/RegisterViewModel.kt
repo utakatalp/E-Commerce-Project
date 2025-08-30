@@ -1,14 +1,14 @@
 package com.example.e_commerce_project.presentation.auth.register
 
+//import com.example.e_commerce_project.util.api.RetrofitInstance
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.e_commerce_project.DalmarScreen
-import com.example.e_commerce_project.NavigationEffect
+import com.example.e_commerce_project.data.remote.dto.response.RegisterRequest
 import com.example.e_commerce_project.data.repository.ExistingUser
 import com.example.e_commerce_project.domain.repository.UserRepository
-import com.example.e_commerce_project.data.remote.dto.response.RegisterRequest
-//import com.example.e_commerce_project.util.api.RetrofitInstance
+import com.example.e_commerce_project.presentation.navigation.Home
+import com.example.e_commerce_project.presentation.navigation.NavigationEffect
 import com.example.e_commerce_project.util.password.MinLengthRule
 import com.example.e_commerce_project.util.password.PasswordValidator
 import com.example.e_commerce_project.util.password.UppercaseRule
@@ -129,7 +129,7 @@ class RegisterViewModel @Inject constructor(
                 response
                     .onSuccess {
                         Log.d("response", it.toString())
-                        _navEffect.send(NavigationEffect(DalmarScreen.HOME.name))
+                        _navEffect.send(NavigationEffect(Home))
                         onResult(null)
                     }
                     .onFailure {

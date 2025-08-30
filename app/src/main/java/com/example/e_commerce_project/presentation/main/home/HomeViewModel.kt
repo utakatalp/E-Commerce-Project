@@ -3,13 +3,14 @@ package com.example.e_commerce_project.presentation.main.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.e_commerce_project.DalmarScreen
-import com.example.e_commerce_project.NavigationEffect
 import com.example.e_commerce_project.domain.model.Store
 import com.example.e_commerce_project.domain.model.User
 import com.example.e_commerce_project.domain.repository.StoreRepository
 import com.example.e_commerce_project.domain.repository.UserPreferencesRepository
 import com.example.e_commerce_project.domain.repository.UserRepository
+import com.example.e_commerce_project.presentation.navigation.NavigationEffect
+import com.example.e_commerce_project.presentation.navigation.Route
+import com.example.e_commerce_project.presentation.navigation.Welcome
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
@@ -38,13 +39,13 @@ class HomeViewModel @Inject constructor(
         when (intent) {
             is HomeIntent.onLogoutClick -> logOut()
             is HomeIntent.onProductClick -> viewModelScope.launch {
-                _navEffect.send(NavigationEffect("product_detail/${intent.storeName}/${intent.id}"))
+//                _navEffect.send(NavigationEffect("product_detail/${intent.storeName}/${intent.id}"))
+                _navEffect.send(NavigationEffect(Route.ProductDetail(intent.storeName, intent.id)))
             }
         }
     }
 
     init {
-
         viewModelScope.launch {
             Log.d("unexpected", "viewmodel ok")
             val deferredStore = async { loadStore("canerture") }
@@ -86,7 +87,8 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             if (userRepository.logOut().isSuccess) {
 //                _navEffect.send(NavigationEffect(DalmarScreen.WELCOME.name))
-                _logOutEffect.send(NavigationEffect(DalmarScreen.WELCOME.name))
+//                _logOutEffect.send(NavigationEffect(DalmarScreen.WELCOME.name))
+                _logOutEffect.send(NavigationEffect(Welcome))
             }
         }
     }

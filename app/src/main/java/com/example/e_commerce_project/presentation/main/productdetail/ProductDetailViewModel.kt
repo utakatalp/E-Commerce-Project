@@ -5,20 +5,24 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.e_commerce_project.domain.repository.StoreRepository
+import com.example.e_commerce_project.presentation.navigation.Route
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class ProductDetailViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = ProductDetailViewModel.Factory::class)
+class ProductDetailViewModel @AssistedInject constructor(
     private val storeRepository: StoreRepository,
     savedStateHandle: SavedStateHandle,
+    @Assisted val navKey: Route.ProductDetail
 ) : ViewModel() {
 
-    val productId = savedStateHandle.get<String>("productId")!!
-    val storeName = savedStateHandle.get<String>("storeName")!!
+//    val productId = savedStateHandle.get<>("productId")!!
+//    val storeName = savedStateHandle.get<String>("storeName")!!
 
 
     private val _uiState = MutableStateFlow<ProductDetailUiState>(ProductDetailUiState.Loading)
@@ -26,9 +30,9 @@ class ProductDetailViewModel @Inject constructor(
 
 
     init {
-        Log.d("check", "$storeName $productId")
+        Log.d("check", "$navKey.storeName $navKey.productId")
         viewModelScope.launch {
-            loadProductDetail(storeName, productId.toInt())
+            loadProductDetail(navKey.storeName, navKey.productId.toInt())
         }
     }
 
@@ -42,5 +46,10 @@ class ProductDetailViewModel @Inject constructor(
         storeRepository.getProductDetail(storeName, productId).onSuccess {
             _uiState.value = ProductDetailUiState.Success(product = it)
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(navKey: Route.ProductDetail): ProductDetailViewModel
     }
 }

@@ -2,8 +2,8 @@ package com.example.e_commerce_project.presentation.auth.forgotpassword
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.e_commerce_project.DalmarScreen
-import com.example.e_commerce_project.NavigationEffect
+import com.example.e_commerce_project.presentation.navigation.NavigationEffect
+import com.example.e_commerce_project.presentation.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,7 +34,8 @@ class ForgotPasswordViewModel @Inject constructor() : ViewModel() {
 
     private fun navigateToLogin() {
         viewModelScope.launch {
-            _navEffect.send(NavigationEffect(DalmarScreen.LOGIN.name))
+//            _navEffect.send(NavigationEffect(DalmarScreen.LOGIN.name))
+            _navEffect.send(NavigationEffect(Route.LogIn))
         }
     }
 

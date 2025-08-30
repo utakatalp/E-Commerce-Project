@@ -2,14 +2,13 @@ package com.example.e_commerce_project.presentation.auth.welcome
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.e_commerce_project.DalmarScreen
-import com.example.e_commerce_project.NavigationEffect
+import com.example.e_commerce_project.presentation.navigation.NavigationEffect
+import com.example.e_commerce_project.presentation.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
 @HiltViewModel
@@ -28,12 +27,13 @@ class WelcomeViewModel @Inject constructor() : ViewModel() {
     }
     private fun navigateToRegister() {
         viewModelScope.launch {
-            _navEffect.send(NavigationEffect(DalmarScreen.REGISTER.name))
+            _navEffect.send(NavigationEffect(Route.SignUp))
         }
     }
     private fun navigateToLogin() {
         viewModelScope.launch {
-            _navEffect.send(NavigationEffect(DalmarScreen.LOGIN.name))
+//            _navEffect.send(NavigationEffect2(Dalmar_root_ide_package_.com.example.e_commerce_project.presentation.navigation.Route.LOGIN.name))
+            _navEffect.send(NavigationEffect(Route.LogIn))
         }
     }
 }

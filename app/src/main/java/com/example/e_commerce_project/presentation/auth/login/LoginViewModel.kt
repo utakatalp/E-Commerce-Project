@@ -2,11 +2,12 @@ package com.example.e_commerce_project.presentation.auth.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.e_commerce_project.DalmarScreen
-import com.example.e_commerce_project.NavigationEffect
+import com.example.e_commerce_project.data.remote.dto.response.LoginRequest
 import com.example.e_commerce_project.data.repository.EmailOrPasswordErrorException
 import com.example.e_commerce_project.domain.repository.UserRepository
-import com.example.e_commerce_project.data.remote.dto.response.LoginRequest
+import com.example.e_commerce_project.presentation.navigation.Home
+import com.example.e_commerce_project.presentation.navigation.NavigationEffect
+import com.example.e_commerce_project.presentation.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,7 +43,8 @@ open class LoginViewModel @Inject constructor(
 
     private fun navigateToForgotPassword() {
         viewModelScope.launch {
-            _navEffect.send(NavigationEffect(DalmarScreen.FORGOT_PASSWORD.name))
+//            _navEffect.send(NavigationEffect(DalmarScreen.FORGOT_PASSWORD.name))
+            _navEffect.send(NavigationEffect(Route.ForgotPassword))
         }
     }
 
@@ -61,7 +63,8 @@ open class LoginViewModel @Inject constructor(
 
                 response
                     .onSuccess {
-                        _navEffect.send(NavigationEffect(DalmarScreen.HOME.name))
+//                        _navEffect.send(NavigationEffect(DalmarScreen.HOME.name))
+                        _navEffect.send(NavigationEffect(Home))
                     }
                     .onFailure {
                         if (it is EmailOrPasswordErrorException) {

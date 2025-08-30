@@ -2,10 +2,10 @@ package com.example.e_commerce_project.presentation.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.e_commerce_project.DalmarScreen
-import com.example.e_commerce_project.NavigationEffect
 import com.example.e_commerce_project.domain.repository.UserPreferencesRepository
+import com.example.e_commerce_project.presentation.navigation.Home
+import com.example.e_commerce_project.presentation.navigation.NavigationEffect
+import com.example.e_commerce_project.presentation.navigation.Welcome
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -22,9 +22,9 @@ class SplashViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             if (userPreferencesRepository.getUserId() != null) {
-                _navEffect.send(NavigationEffect(DalmarScreen.HOME.name))
+                _navEffect.send(NavigationEffect(Home))
             } else {
-                _navEffect.send(NavigationEffect(DalmarScreen.WELCOME.name))
+                _navEffect.send(NavigationEffect(Welcome))
             }
         }
     }
