@@ -10,5 +10,6 @@ data class Product(
     val images: List<String>,
     val rate: Double,
     val count: Int,
-    val saleState: Boolean
+    val saleState: Boolean,
+    var isFavorite: Boolean
 )

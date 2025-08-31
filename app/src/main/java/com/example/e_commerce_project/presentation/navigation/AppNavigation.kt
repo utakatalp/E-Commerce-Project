@@ -1,5 +1,6 @@
 package com.example.e_commerce_project.presentation.navigation
 
+import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -12,9 +13,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.example.e_commerce_project.presentation.auth.forgotpassword.ForgotPasswordScreen
 import com.example.e_commerce_project.presentation.auth.forgotpassword.ForgotPasswordViewModel
 import com.example.e_commerce_project.presentation.auth.login.LoginScreen
@@ -24,11 +28,13 @@ import com.example.e_commerce_project.presentation.auth.register.RegisterViewMod
 import com.example.e_commerce_project.presentation.auth.welcome.WelcomeScreen
 import com.example.e_commerce_project.presentation.auth.welcome.WelcomeViewModel
 import com.example.e_commerce_project.presentation.main.cart.CartScreen
+import com.example.e_commerce_project.presentation.main.cart.CartViewModel
 import com.example.e_commerce_project.presentation.main.home.HomeScreen
 import com.example.e_commerce_project.presentation.main.home.HomeViewModel
 import com.example.e_commerce_project.presentation.main.productdetail.ProductDetailScreen
 import com.example.e_commerce_project.presentation.main.productdetail.ProductDetailViewModel
 import com.example.e_commerce_project.presentation.main.profile.ProfileScreen
+import com.example.e_commerce_project.presentation.main.profile.ProfileViewModel
 import com.example.e_commerce_project.presentation.splash.SplashScreen
 import com.example.e_commerce_project.presentation.splash.SplashViewModel
 import kotlinx.coroutines.flow.Flow
@@ -73,6 +79,13 @@ fun AppNavigation() {
             modifier = Modifier.padding(padding),
             backStack = topLevelBackStack.backStack,
             onBack = { topLevelBackStack.removeLast() },
+            entryDecorators = listOf(
+                // Add the default decorators for managing scenes and saving state
+                rememberSceneSetupNavEntryDecorator(),
+                rememberSavedStateNavEntryDecorator(),
+                // Then add the view model store decorator
+                rememberViewModelStoreNavEntryDecorator()
+            ),
             entryProvider = entryProvider {
                 entry<Welcome> {
                     val viewModel = hiltViewModel<WelcomeViewModel>()
@@ -146,10 +159,25 @@ fun AppNavigation() {
                     )
                 }
                 entry<Cart> {
-                    CartScreen()
+                    val viewModel = hiltViewModel<CartViewModel>()
+                    val uiState by viewModel.uiState.collectAsState()
+                    CartScreen(
+                        modifier = Modifier,
+                        uiState = uiState,
+                        onIntent = { viewModel.onIntent(it) }
+                    )
+                    NavigationHandler(viewModel.navEffect, topLevelBackStack)
                 }
                 entry<Profile> {
-                    ProfileScreen()
+                    val viewModel = hiltViewModel<ProfileViewModel>()
+                    val uiState by viewModel.uiState.collectAsState()
+                    ProfileScreen(
+                        modifier = Modifier,
+                        uiState = uiState,
+                        onIntent = { viewModel.onIntent(it) }
+                    )
+                    NavigationHandler(viewModel.navEffect, topLevelBackStack)
+
                 }
             }
         )
@@ -163,14 +191,13 @@ fun NavigationHandler(
     clearStack: Boolean = false,
 ) {
     LaunchedEffect(Unit) {
-
         navigationEffect.collect {
             if (clearStack) {
                 topLevelBackStack.clearStack(it.route)
                 topLevelBackStack.addTopLevel(it.route)
             } else {
+                Log.d("flow after", "${it.route}")
                 topLevelBackStack.add(it.route)
-
             }
         }
     }

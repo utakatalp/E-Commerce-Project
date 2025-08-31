@@ -3,6 +3,9 @@ package com.example.e_commerce_project.presentation.main.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.e_commerce_project.data.remote.dto.response.AddToCartRequest
+import com.example.e_commerce_project.data.remote.dto.response.AddToFavoritesRequest
+import com.example.e_commerce_project.data.remote.dto.response.DeleteFromFavoritesRequest
 import com.example.e_commerce_project.domain.model.Store
 import com.example.e_commerce_project.domain.model.User
 import com.example.e_commerce_project.domain.repository.StoreRepository
@@ -17,6 +20,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -38,10 +42,10 @@ class HomeViewModel @Inject constructor(
     fun onIntent(intent: HomeIntent) {
         when (intent) {
             is HomeIntent.onLogoutClick -> logOut()
-            is HomeIntent.onProductClick -> viewModelScope.launch {
-//                _navEffect.send(NavigationEffect("product_detail/${intent.storeName}/${intent.id}"))
-                _navEffect.send(NavigationEffect(Route.ProductDetail(intent.storeName, intent.id)))
-            }
+            is HomeIntent.onProductClick -> navigateToProduct(intent)
+            is HomeIntent.onAddToCartClick -> addToCart(intent)
+            is HomeIntent.onFavoriteClick -> addToFavorite(intent)
+            is HomeIntent.DeleteFromFavorites -> deleteFromFavorites(intent)
         }
     }
 
@@ -57,6 +61,77 @@ class HomeViewModel @Inject constructor(
             )
         }
     }
+
+    private fun deleteFromFavorites(intent: HomeIntent.DeleteFromFavorites) {
+        viewModelScope.launch {
+            try {
+                val userId = userPreferencesRepository.getUserId()
+                userRepository.deleteFromFavorites(
+                    userId.toString(),
+                    DeleteFromFavoritesRequest(
+                        userId = userPreferencesRepository.getUserId()!!,
+                        id = intent.productId
+                    )
+                ).onSuccess {
+                    _uiState.update { (it as HomeUiState.Success).copy(stores = listOf(loadStore("canerture"))) }
+                }
+                // Refresh after deletion
+            } catch (e: Exception) {
+                Log.e("CartViewModel", "Error deleting from favorites", e)
+            }
+        }
+    }
+
+    private fun addToCart(intent: HomeIntent.onAddToCartClick) {
+        viewModelScope.launch {
+            try {
+                val userId = userPreferencesRepository.getUserId()
+                userRepository.addToCart(
+                    intent.storeName,
+                    AddToCartRequest(
+                        productId = intent.productId,
+                        userId = userPreferencesRepository.getUserId()!!
+                    )
+                )
+                // You might want to show a success message or update UI state
+                Log.d("HomeViewModel", "Product added to cart successfully")
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error adding to cart", e)
+            }
+        }
+    }
+
+    private fun addToFavorite(intent: HomeIntent.onFavoriteClick) {
+        viewModelScope.launch {
+            try {
+                val userId = userPreferencesRepository.getUserId()
+                userRepository.addToFavorites(
+                    intent.storeName,
+                    AddToFavoritesRequest(
+                        userId = userPreferencesRepository.getUserId()!!,
+                        productId = intent.productId
+                    )
+                ).onSuccess {
+                    _uiState.update { (it as HomeUiState.Success).copy(stores = listOf(loadStore("canerture"))) }
+                }
+                // You might want to update the UI state to reflect the favorite status
+                Log.d("HomeViewModel", "Product added to favorites successfully")
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error adding to favorites", e)
+            }
+        }
+    }
+
+
+    private fun navigateToProduct(intent: HomeIntent.onProductClick) {
+        viewModelScope.launch {
+            //                _navEffect.send(NavigationEffect("product_detail/${intent.storeName}/${intent.id}"))
+            Log.d("flow before", "${intent.id}, ${intent.storeName}")
+            _navEffect.send(NavigationEffect(Route.ProductDetail(intent.storeName, intent.id)))
+        }
+    }
+
+
 
     private suspend fun loadStore(storeName: String): Store {
         return storeRepository.getStore(storeName).getOrThrow()

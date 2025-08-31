@@ -6,6 +6,8 @@ sealed interface ProductDetailUiState {
     data object Loading : ProductDetailUiState
     data class Success(
         val product: Product,
+        val storeName: String,
+        val isFavorite: Boolean = false,
     ) : ProductDetailUiState
 
     data class Empty(

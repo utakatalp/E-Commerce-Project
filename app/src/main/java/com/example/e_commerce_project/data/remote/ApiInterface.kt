@@ -1,13 +1,20 @@
 package com.example.e_commerce_project.data.remote
 
+import com.example.e_commerce_project.data.remote.dto.AddressResponseDto
 import com.example.e_commerce_project.data.remote.dto.CategoriesResponseDto
 import com.example.e_commerce_project.data.remote.dto.ProductResponseDto
 import com.example.e_commerce_project.data.remote.dto.ProductsResponseDto
 import com.example.e_commerce_project.data.remote.dto.UserResponseDto
+import com.example.e_commerce_project.data.remote.dto.response.AddAddressRequest
 import com.example.e_commerce_project.data.remote.dto.response.AddToCartRequest
 import com.example.e_commerce_project.data.remote.dto.response.AddToFavoritesRequest
 import com.example.e_commerce_project.data.remote.dto.response.AuthResponse
 import com.example.e_commerce_project.data.remote.dto.response.BaseResponse
+import com.example.e_commerce_project.data.remote.dto.response.ChangePasswordRequest
+import com.example.e_commerce_project.data.remote.dto.response.DeleteFromAddressesRequest
+import com.example.e_commerce_project.data.remote.dto.response.DeleteFromCartRequest
+import com.example.e_commerce_project.data.remote.dto.response.DeleteFromFavoritesRequest
+import com.example.e_commerce_project.data.remote.dto.response.EditProfileRequest
 import com.example.e_commerce_project.data.remote.dto.response.LoginRequest
 import com.example.e_commerce_project.data.remote.dto.response.RegisterRequest
 import retrofit2.Response
@@ -48,9 +55,81 @@ interface ApiInterface { // coroutine with retrofit, add suspend
         @Body request: AddToCartRequest
     ): Response<BaseResponse>
 
-    @POST("add_to_favorite")
+    @POST("add_to_favorites")
     suspend fun addToFavorite(
         @Header("store") store: String,
         @Body request: AddToFavoritesRequest
+    ): Response<BaseResponse>
+
+    @GET("get_favorites")
+    suspend fun getFavorites(
+        @Header("store") store: String,
+        @Query("userId") userId: String
+    ): Response<ProductsResponseDto>
+
+    @GET("get_cart_products")
+    suspend fun getCartProducts(
+        @Header("store") store: String,
+        @Query("userId") userId: String
+    ): Response<ProductsResponseDto>
+
+    @POST("delete_from_cart")
+    suspend fun deleteFromCart(
+        @Header("store") store: String,
+        @Body request: DeleteFromCartRequest
+    ): Response<BaseResponse>
+
+    @POST("clear_cart")
+    suspend fun clearCart(
+        @Header("store") store: String,
+        @Body userId: String
+    ): Response<BaseResponse>
+
+    @POST("delete_from_favorites")
+    suspend fun deleteFromFavorites(
+        @Header("store") store: String,
+        @Body request: DeleteFromFavoritesRequest
+    ): Response<BaseResponse>
+
+    @POST("clear_favorites")
+    suspend fun clearFavorites(
+        @Header("store") store: String,
+        @Body userId: String
+    ): Response<BaseResponse>
+
+    @POST("add_address")
+    suspend fun addAddress(
+        @Header("store") store: String,
+        @Body request: AddAddressRequest
+    ): Response<BaseResponse>
+
+    @GET("get_addresses")
+    suspend fun getAddresses(
+        @Header("store") store: String,
+        @Query("userId") userId: String
+    ): Response<AddressResponseDto>
+
+    @POST("delete_from_addresses")
+    suspend fun deleteFromAddresses(
+        @Header("store") store: String,
+        @Body request: DeleteFromAddressesRequest
+    ): Response<BaseResponse>
+
+    @POST("clear_addresses")
+    suspend fun clearAddresses(
+        @Header("store") store: String,
+        @Body userId: String
+    ): Response<BaseResponse>
+
+    @POST("edit_profile")
+    suspend fun editProfile(
+        @Header("store") store: String,
+        @Body request: EditProfileRequest
+    ): Response<BaseResponse>
+
+    @POST("change_password")
+    suspend fun changePassword(
+        @Header("store") store: String,
+        @Body request: ChangePasswordRequest
     ): Response<BaseResponse>
 }

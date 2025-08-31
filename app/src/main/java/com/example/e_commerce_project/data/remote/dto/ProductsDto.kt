@@ -38,7 +38,8 @@ data class ProductDto(
             images = listOf(imageOne, imageTwo, imageThree),
             rate = rate,
             count = count,
-            saleState = saleState
+            saleState = saleState,
+            isFavorite = false
         )
     }
 }

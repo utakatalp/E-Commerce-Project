@@ -3,9 +3,18 @@ package com.example.e_commerce_project.data.repository
 import android.util.Log
 import com.example.e_commerce_project.data.mapper.toDomain
 import com.example.e_commerce_project.data.remote.ApiInterface
+import com.example.e_commerce_project.data.remote.dto.response.AddAddressRequest
 import com.example.e_commerce_project.data.remote.dto.response.AddToCartRequest
+import com.example.e_commerce_project.data.remote.dto.response.AddToFavoritesRequest
+import com.example.e_commerce_project.data.remote.dto.response.ChangePasswordRequest
+import com.example.e_commerce_project.data.remote.dto.response.DeleteFromAddressesRequest
+import com.example.e_commerce_project.data.remote.dto.response.DeleteFromCartRequest
+import com.example.e_commerce_project.data.remote.dto.response.DeleteFromFavoritesRequest
+import com.example.e_commerce_project.data.remote.dto.response.EditProfileRequest
 import com.example.e_commerce_project.data.remote.dto.response.LoginRequest
 import com.example.e_commerce_project.data.remote.dto.response.RegisterRequest
+import com.example.e_commerce_project.domain.model.Address
+import com.example.e_commerce_project.domain.model.Product
 import com.example.e_commerce_project.domain.model.User
 import com.example.e_commerce_project.domain.repository.UserPreferencesRepository
 import com.example.e_commerce_project.domain.repository.UserRepository
@@ -51,10 +60,10 @@ class NetworkUserRepository @Inject constructor(
 
     override suspend fun getUser(userId: String, store: String): Result<User> {
         val response = apiInterface.getUser(store, userId)
-        if (response.isSuccessful && response.body()?.status == 200) {
-            return Result.success(response.body()?.user?.toDomain()!!)
+        return if (response.isSuccessful && response.body()?.status == 200) {
+            Result.success(response.body()?.user?.toDomain()!!)
         } else {
-            return Result.failure(Exception("Unexpected error occurred."))
+            Result.failure(Exception("Unexpected error occurred."))
         }
     }
 
@@ -72,9 +81,156 @@ class NetworkUserRepository @Inject constructor(
 
     override suspend fun addToFavorites(
         store: String,
-        addToCartRequest: AddToCartRequest
+        addToFavoritesRequest: AddToFavoritesRequest
     ): Result<String> {
-        val response = apiInterface.addToCart(store, addToCartRequest)
+        val response = apiInterface.addToFavorite(store, addToFavoritesRequest)
+        return if (response.isSuccessful && response.body()?.status == 200) {
+            Result.success(response.body()?.message!!)
+        } else {
+            Result.failure(Exception(response.body()?.message))
+        }
+    }
+
+    override suspend fun getFavorites(
+        userId: String,
+        store: String
+    ): Result<List<Product>> {
+        val response = apiInterface.getFavorites(store, userId)
+        return if (response.isSuccessful && response.body()?.status == 200) {
+            Result.success(response.body()?.products?.map { it.toDomain() }!!)
+        } else {
+            Result.failure(Exception(response.body()?.message))
+        }
+    }
+
+    override suspend fun getCartProducts(
+        userId: String,
+        store: String
+    ): Result<List<Product>> {
+        val response = apiInterface.getCartProducts(store, userId)
+        return if (response.isSuccessful && response.body()?.status == 200) {
+            Result.success(response.body()?.products?.map { it.toDomain() }!!)
+        } else {
+            Result.failure(Exception(response.body()?.message))
+        }
+    }
+
+    override suspend fun deleteFromCart(
+        store: String,
+        deleteFromCartRequest: DeleteFromCartRequest
+    ): Result<String> {
+        val response = apiInterface.deleteFromCart(store, deleteFromCartRequest)
+        return if (response.isSuccessful && response.body()?.status == 200) {
+            Result.success(response.body()?.message!!)
+        } else {
+            Result.failure(Exception(response.body()?.message))
+        }
+    }
+
+    override suspend fun clearCart(
+        store: String,
+        userId: String
+    ): Result<String> {
+        val response = apiInterface.clearCart(store, userId)
+        return if (response.isSuccessful && response.body()?.status == 200) {
+            Result.success(response.body()?.message!!)
+        } else {
+            Result.failure(Exception(response.body()?.message))
+        }
+    }
+
+    override suspend fun clearFavorites(
+        store: String,
+        userId: String
+    ): Result<String> {
+        val response = apiInterface.clearFavorites(store, userId)
+        return if (response.isSuccessful && response.body()?.status == 200) {
+            Result.success(response.body()?.message!!)
+        } else {
+            Result.failure(Exception(response.body()?.message))
+        }
+    }
+
+    override suspend fun deleteFromFavorites(
+        store: String,
+        deleteFromFavoritesRequest: DeleteFromFavoritesRequest
+    ): Result<String> {
+        val response = apiInterface.deleteFromFavorites(store, deleteFromFavoritesRequest)
+        return if (response.isSuccessful && response.body()?.status == 200) {
+            Result.success(response.body()?.message!!)
+        } else {
+            Result.failure(Exception(response.body()?.message))
+        }
+    }
+
+    override suspend fun addAddress(
+        store: String,
+        addAddressRequest: AddAddressRequest
+    ): Result<String> {
+        val response = apiInterface.addAddress(store, addAddressRequest)
+        return if (response.isSuccessful && response.body()?.status == 200) {
+            Result.success(response.body()?.message!!)
+        } else {
+            Result.failure(Exception(response.body()?.message))
+        }
+    }
+
+    override suspend fun getAddresses(
+        userId: String,
+        store: String
+    ): Result<List<Address>> {
+        val response = apiInterface.getAddresses(store, userId)
+//        Log.d("NetworkUserRepository", "Response: ${response.body()}")
+        return if (response.isSuccessful && response.body()?.status == 200) {
+            val addresses = response.body()?.addresses?.map { it.toDomain() } ?: emptyList()
+            Result.success(addresses)
+        } else {
+            Result.failure(Exception(response.body()?.message))
+        }
+    }
+
+    override suspend fun deleteFromAddresses(
+        store: String,
+        deleteFromAddressesRequest: DeleteFromAddressesRequest
+    ): Result<String> {
+        val response = apiInterface.deleteFromAddresses(store, deleteFromAddressesRequest)
+        return if (response.isSuccessful && response.body()?.status == 200) {
+            Result.success(response.body()?.message!!)
+        } else {
+            Result.failure(Exception(response.body()?.message))
+        }
+    }
+
+    override suspend fun clearAddresses(
+        store: String,
+        userId: String
+    ): Result<String> {
+        val response = apiInterface.clearAddresses(store, userId)
+        return if (response.isSuccessful && response.body()?.status == 200) {
+            Result.success(response.body()?.message!!)
+        } else {
+            Result.failure(Exception(response.body()?.message))
+        }
+
+    }
+
+    override suspend fun editProfile(
+        store: String,
+        editProfileRequest: EditProfileRequest
+    ): Result<String> {
+        val response = apiInterface.editProfile(store, editProfileRequest)
+        return if (response.isSuccessful && response.body()?.status == 200) {
+            Result.success(response.body()?.message!!)
+        } else {
+            Result.failure(Exception(response.body()?.message))
+        }
+    }
+
+    override suspend fun changePassword(
+        store: String,
+        changePasswordRequest: ChangePasswordRequest
+    ): Result<String> {
+        val response = apiInterface.changePassword(store, changePasswordRequest)
         return if (response.isSuccessful && response.body()?.status == 200) {
             Result.success(response.body()?.message!!)
         } else {
@@ -82,6 +238,7 @@ class NetworkUserRepository @Inject constructor(
         }
     }
 }
+
 class ExistingUser : Throwable()
 class EmailOrPasswordErrorException() : Throwable()
 /*

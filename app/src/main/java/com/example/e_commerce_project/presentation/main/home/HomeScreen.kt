@@ -66,7 +66,8 @@ fun HomeContent(
                         ProductCard(
                             onIntent = onIntent,
                             product = product,
-                            storeName = store.name
+                            storeName = store.name,
+                            isFavorite = product.isFavorite
                         )
                     }
                 }

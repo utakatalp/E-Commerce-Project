@@ -6,6 +6,8 @@ import com.example.e_commerce_project.domain.model.Category
 import com.example.e_commerce_project.domain.model.Product
 import com.example.e_commerce_project.domain.model.Store
 import com.example.e_commerce_project.domain.repository.StoreRepository
+import com.example.e_commerce_project.domain.repository.UserPreferencesRepository
+import com.example.e_commerce_project.domain.repository.UserRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -14,12 +16,22 @@ import javax.inject.Inject
 
 class StoreRepositoryImpl @Inject constructor(
     private val apiInterface: ApiInterface,
+    private val userRepository: UserRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : StoreRepository {
     override suspend fun getProducts(storeName: String): Result<List<Product>> {
         val response = apiInterface.getProducts(storeName)
-
+        Log.d("userid", userPreferencesRepository.getUserId()!!)
+        val favoriteProducts = userRepository.getFavorites(userPreferencesRepository.getUserId()!!)
         if (response.isSuccessful && response.body()?.status == 200) {
             val products = response.body()?.products?.map { it.toDomain() }
+            products?.forEach { product ->
+                favoriteProducts.getOrNull()?.forEach { favoriteProduct ->
+                    if (product.id == favoriteProduct.id) {
+                        product.isFavorite = true
+                    }
+                }
+            }
             return Result.success(products!!)
         } else {
             return Result.failure(Exception("Unexpected error occurred."))
