@@ -2,12 +2,13 @@ package com.example.e_commerce_project.data.repository
 
 import android.util.Log
 import com.example.e_commerce_project.data.mapper.toDomain
-import com.example.e_commerce_project.domain.repository.UserRepository
 import com.example.e_commerce_project.data.remote.ApiInterface
+import com.example.e_commerce_project.data.remote.dto.response.AddToCartRequest
 import com.example.e_commerce_project.data.remote.dto.response.LoginRequest
 import com.example.e_commerce_project.data.remote.dto.response.RegisterRequest
 import com.example.e_commerce_project.domain.model.User
 import com.example.e_commerce_project.domain.repository.UserPreferencesRepository
+import com.example.e_commerce_project.domain.repository.UserRepository
 import javax.inject.Inject
 
 class NetworkUserRepository @Inject constructor(
@@ -54,6 +55,30 @@ class NetworkUserRepository @Inject constructor(
             return Result.success(response.body()?.user?.toDomain()!!)
         } else {
             return Result.failure(Exception("Unexpected error occurred."))
+        }
+    }
+
+    override suspend fun addToCart(
+        store: String,
+        addToCartRequest: AddToCartRequest
+    ): Result<String> {
+        val response = apiInterface.addToCart(store, addToCartRequest)
+        return if (response.isSuccessful && response.body()?.status == 200) {
+            Result.success(response.body()?.message!!)
+        } else {
+            Result.failure(Exception(response.body()?.message))
+        }
+    }
+
+    override suspend fun addToFavorites(
+        store: String,
+        addToCartRequest: AddToCartRequest
+    ): Result<String> {
+        val response = apiInterface.addToCart(store, addToCartRequest)
+        return if (response.isSuccessful && response.body()?.status == 200) {
+            Result.success(response.body()?.message!!)
+        } else {
+            Result.failure(Exception(response.body()?.message))
         }
     }
 }

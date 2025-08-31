@@ -44,25 +44,27 @@ fun AppNavigation() {
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                TOP_LEVEL_ROUTES.forEach { topLevelRoute ->
+            if (topLevelBackStack.topLevelKey in TOP_LEVEL_ROUTES) {
+                NavigationBar {
+                    TOP_LEVEL_ROUTES.forEach { topLevelRoute ->
 
-                    val isSelected = topLevelRoute == topLevelBackStack.topLevelKey
-                    NavigationBarItem(
-                        selected = isSelected,
-                        onClick = {
-                            topLevelBackStack.addTopLevel(topLevelRoute)
-                        },
-                        icon = {
-                            Icon(
-                                imageVector =
-                                    if (isSelected) {
-                                        topLevelRoute.selectedIcon!!
-                                    } else topLevelRoute.unselectedIcon!!,
-                                contentDescription = null
-                            )
-                        }
-                    )
+                        val isSelected = topLevelRoute == topLevelBackStack.topLevelKey
+                        NavigationBarItem(
+                            selected = isSelected,
+                            onClick = {
+                                topLevelBackStack.addTopLevel(topLevelRoute)
+                            },
+                            icon = {
+                                Icon(
+                                    imageVector =
+                                        if (isSelected) {
+                                            topLevelRoute.selectedIcon!!
+                                        } else topLevelRoute.unselectedIcon!!,
+                                    contentDescription = null
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -142,7 +144,6 @@ fun AppNavigation() {
                         uiState = uiState,
                         onIntent = { viewModel.onIntent(it) }
                     )
-//                    NavigationHandler(viewModel.navEffect, topLevelBackStack)
                 }
                 entry<Cart> {
                     CartScreen()
