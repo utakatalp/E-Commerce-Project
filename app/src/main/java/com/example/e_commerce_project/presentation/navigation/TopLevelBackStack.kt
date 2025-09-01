@@ -1,5 +1,6 @@
 package com.example.e_commerce_project.presentation.navigation
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -20,11 +21,14 @@ class TopLevelBackStack<T : Any>(startKey: T) {
     // Expose the back stack so it can be rendered by the NavDisplay
     val backStack = mutableStateListOf(startKey)
 
-    private fun updateBackStack() =
+    private fun updateBackStack() {
+
         backStack.apply {
             clear()
             addAll(topLevelStacks.flatMap { it.value })
         }
+        Log.d("TopLevelBackStack", "BackStack: $backStack")
+    }
 
     fun addTopLevel(key: T) {
 
@@ -39,6 +43,7 @@ class TopLevelBackStack<T : Any>(startKey: T) {
                 }
             }
         }
+//        topLevelStacks.put(key, mutableStateListOf(key))
         topLevelKey = key
         updateBackStack()
     }

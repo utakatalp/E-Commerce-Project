@@ -7,6 +7,7 @@ import com.example.e_commerce_project.data.remote.dto.response.AddAddressRequest
 import com.example.e_commerce_project.data.remote.dto.response.AddToCartRequest
 import com.example.e_commerce_project.data.remote.dto.response.AddToFavoritesRequest
 import com.example.e_commerce_project.data.remote.dto.response.ChangePasswordRequest
+import com.example.e_commerce_project.data.remote.dto.response.ClearAddressesRequest
 import com.example.e_commerce_project.data.remote.dto.response.DeleteFromAddressesRequest
 import com.example.e_commerce_project.data.remote.dto.response.DeleteFromCartRequest
 import com.example.e_commerce_project.data.remote.dto.response.DeleteFromFavoritesRequest
@@ -205,7 +206,7 @@ class NetworkUserRepository @Inject constructor(
         store: String,
         userId: String
     ): Result<String> {
-        val response = apiInterface.clearAddresses(store, userId)
+        val response = apiInterface.clearAddresses(store, ClearAddressesRequest(userId))
         return if (response.isSuccessful && response.body()?.status == 200) {
             Result.success(response.body()?.message!!)
         } else {

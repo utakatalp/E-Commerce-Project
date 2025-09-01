@@ -47,3 +47,7 @@ class ChangePasswordRequest(
     val userId: String,
     val password: String
 )
+
+class ClearAddressesRequest(
+    val userId: String
+)

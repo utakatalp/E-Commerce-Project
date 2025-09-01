@@ -11,6 +11,7 @@ import com.example.e_commerce_project.data.remote.dto.response.AddToFavoritesReq
 import com.example.e_commerce_project.data.remote.dto.response.AuthResponse
 import com.example.e_commerce_project.data.remote.dto.response.BaseResponse
 import com.example.e_commerce_project.data.remote.dto.response.ChangePasswordRequest
+import com.example.e_commerce_project.data.remote.dto.response.ClearAddressesRequest
 import com.example.e_commerce_project.data.remote.dto.response.DeleteFromAddressesRequest
 import com.example.e_commerce_project.data.remote.dto.response.DeleteFromCartRequest
 import com.example.e_commerce_project.data.remote.dto.response.DeleteFromFavoritesRequest
@@ -118,7 +119,7 @@ interface ApiInterface { // coroutine with retrofit, add suspend
     @POST("clear_addresses")
     suspend fun clearAddresses(
         @Header("store") store: String,
-        @Body userId: String
+        @Body request: ClearAddressesRequest
     ): Response<BaseResponse>
 
     @POST("edit_profile")
