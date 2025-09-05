@@ -1,5 +1,6 @@
 package com.example.e_commerce_project.presentation.main.home.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,12 +17,15 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.e_commerce_project.domain.model.Category
+import com.example.e_commerce_project.presentation.main.home.HomeIntent
 
 @Composable
-fun CategoryCard(category: Category) {
+fun CategoryCard(
+    category: Category,
+    onIntent: (HomeIntent) -> Unit
+) {
     val strokeWidth = 1.dp
     Box(
         modifier = Modifier
@@ -45,6 +49,9 @@ fun CategoryCard(category: Category) {
                     style = Stroke(width = strokePx)
                 )
             }
+            .clickable {
+                onIntent(HomeIntent.CategoryClick(category))
+            }
     ) {
         Card(
             modifier = Modifier
@@ -63,9 +70,9 @@ fun CategoryCard(category: Category) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun CategoryCardPreview() {
-    // You must call the Composable function you want to preview inside here
-    CategoryCard(category = Category("Sample Category", ""))
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun CategoryCardPreview() {
+//    // You must call the Composable function you want to preview inside here
+//    CategoryCard(category = Category("Sample Category", ""))
+//}

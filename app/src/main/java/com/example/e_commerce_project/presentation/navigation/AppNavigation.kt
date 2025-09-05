@@ -125,7 +125,7 @@ fun AppNavigation() {
                         onIntent = { viewModel.onIntent(it) },
                         uiState = uiState
                     )
-                    NavigationHandler(viewModel.navEffect, topLevelBackStack)
+                    NavigationHandler(viewModel.navEffect, topLevelBackStack, clearStack = true)
                 }
                 entry<Home> {
                     val viewModel = hiltViewModel<HomeViewModel>()

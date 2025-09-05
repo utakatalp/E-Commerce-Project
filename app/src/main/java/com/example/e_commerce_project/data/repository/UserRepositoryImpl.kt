@@ -45,6 +45,7 @@ class NetworkUserRepository @Inject constructor(
         val response = apiInterface.signUp(registerRequest)
 
         return if (response.isSuccessful && response.body()?.status == 200) {
+            userPreferencesRepository.saveUserId(response.body()?.userId.toString())
             Result.success(Unit)
         } else if (response.isSuccessful && response.body()?.status == 400) {
             Result.failure(ExistingUser())
@@ -97,7 +98,7 @@ class NetworkUserRepository @Inject constructor(
         store: String
     ): Result<List<Product>> {
         val response = apiInterface.getFavorites(store, userId)
-        return if (response.isSuccessful && response.body()?.status == 200) {
+        return if (response.isSuccessful) {
             Result.success(response.body()?.products?.map { it.toDomain() }!!)
         } else {
             Result.failure(Exception(response.body()?.message))

@@ -133,4 +133,16 @@ interface ApiInterface { // coroutine with retrofit, add suspend
         @Header("store") store: String,
         @Body request: ChangePasswordRequest
     ): Response<BaseResponse>
+
+    //    @GET("search_product")
+//    suspend fun searchProduct(
+//        @Header("store") store: String,
+//        @Query("query") query: String
+//    )
+    @GET("get_products_by_category")
+    suspend fun getProductsByCategory(
+        @Header("store") store: String,
+        @Query("category") category: String
+    ): Response<ProductsResponseDto>
+
 }

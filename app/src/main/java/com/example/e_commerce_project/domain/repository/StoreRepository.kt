@@ -9,4 +9,5 @@ interface StoreRepository {
     suspend fun getStore(storeName: String): Result<Store>
     suspend fun getCategories(storeName: String): Result<List<Category>>
     suspend fun getProductDetail(storeName: String, productId: Int): Result<Product>
+    suspend fun getProductsByCategory(storeName: String, category: String): Result<List<Product>>
 }

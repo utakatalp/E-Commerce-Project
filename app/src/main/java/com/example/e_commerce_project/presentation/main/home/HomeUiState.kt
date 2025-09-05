@@ -1,5 +1,7 @@
 package com.example.e_commerce_project.presentation.main.home
 
+import com.example.e_commerce_project.domain.model.Category
+import com.example.e_commerce_project.domain.model.Product
 import com.example.e_commerce_project.domain.model.Store
 import com.example.e_commerce_project.domain.model.User
 
@@ -9,7 +11,15 @@ sealed interface HomeUiState {
     data class Success(
         val user: User,
         val stores: List<Store>,
-    ) : HomeUiState
+        val filteredList: List<Product>,
+        val isCategorySelected: Boolean = false,
+        val allCategories: Set<Category> = emptySet(),
+        val clickedCategory: List<Category> = emptyList(),
+        val products: List<Product> = emptyList(),
+        val searchText: String = "",
+        val expanded: Boolean = false,
+
+        ) : HomeUiState
     data class Empty(
         val message: String = "No data has been found."
     ) : HomeUiState

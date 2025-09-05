@@ -37,9 +37,7 @@ class ProductDetailViewModel @AssistedInject constructor(
     private val _uiState = MutableStateFlow<ProductDetailUiState>(ProductDetailUiState.Loading)
     val uiState = _uiState.asStateFlow()
 
-
     init {
-        Log.d("flow viewmodel", "${navKey.storeName} ${navKey.productId}")
         viewModelScope.launch {
             loadProductDetail(navKey.storeName, navKey.productId.toInt())
         }
@@ -53,7 +51,6 @@ class ProductDetailViewModel @AssistedInject constructor(
             is ProductDetailIntent.DeleteFromFavorites -> deleteFromFavorites(intent)
         }
     }
-
     private fun deleteFromCart(intent: ProductDetailIntent.DeleteFromCart) {
         viewModelScope.launch {
             try {
@@ -123,9 +120,6 @@ class ProductDetailViewModel @AssistedInject constructor(
                 storeName = storeName
             )
         }
-//        storeRepository.getProductDetail(storeName, productId).onSuccess {
-//            _uiState.value = ProductDetailUiState.Success(product = it)
-//        }
     }
 
     @AssistedFactory

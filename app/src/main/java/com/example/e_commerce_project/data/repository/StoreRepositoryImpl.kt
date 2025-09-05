@@ -39,7 +39,6 @@ class StoreRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getStore(storeName: String): Result<Store> {
-        Log.d("unexpected", "getting in getStore")
         return withContext(context = Dispatchers.IO) {
             coroutineScope {
                 val deferredProducts = async { getProducts(storeName) }
@@ -78,6 +77,19 @@ class StoreRepositoryImpl @Inject constructor(
             Result.success(product!!)
         } else {
             Result.failure(Exception("Unexpected error occurred."))
+        }
+    }
+
+    override suspend fun getProductsByCategory(
+        storeName: String,
+        category: String
+    ): Result<List<Product>> {
+        val response = apiInterface.getProductsByCategory(storeName, category)
+        if (response.isSuccessful) {
+            val products = response.body()?.products?.map { it.toDomain() }!!
+            return Result.success(products)
+        } else {
+            return Result.failure(Exception("Unexpected error occurred."))
         }
     }
 }
