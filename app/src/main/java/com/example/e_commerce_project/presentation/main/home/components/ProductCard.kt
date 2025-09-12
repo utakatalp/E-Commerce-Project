@@ -43,7 +43,6 @@ import com.example.e_commerce_project.presentation.main.home.HomeIntent
 fun ProductCard(
     onIntent: (HomeIntent) -> Unit,
     product: Product,
-    storeName: String,
     isFavorite: Boolean = false,
     modifier: Modifier = Modifier
 ) {
@@ -62,7 +61,7 @@ fun ProductCard(
                     onIntent(
                         HomeIntent.onProductClick(
                             id = product.id.toString(),
-                            storeName = storeName
+                            storeName = product.storeName
                         )
                     )
                 }
@@ -102,7 +101,7 @@ fun ProductCard(
                             onIntent(
                                 HomeIntent.onFavoriteClick(
                                     productId = product.id,
-                                    storeName = storeName
+                                    storeName = product.storeName
                                 )
                             )
                         } else {
@@ -189,7 +188,7 @@ fun ProductCard(
                             onIntent(
                                 HomeIntent.onAddToCartClick(
                                     productId = product.id,
-                                    storeName = storeName
+                                    storeName = product.storeName
                                 )
                             )
                         },
@@ -229,7 +228,7 @@ fun ProductCard(
                                 onIntent(
                                     HomeIntent.onFavoriteClick(
                                         productId = product.id,
-                                        storeName = storeName
+                                        storeName = product.storeName
                                     )
                                 )
                             } else {

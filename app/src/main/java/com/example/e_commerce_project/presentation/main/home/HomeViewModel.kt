@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.e_commerce_project.data.remote.dto.response.AddToCartRequest
 import com.example.e_commerce_project.data.remote.dto.response.AddToFavoritesRequest
 import com.example.e_commerce_project.data.remote.dto.response.DeleteFromFavoritesRequest
+import com.example.e_commerce_project.domain.model.Category
 import com.example.e_commerce_project.domain.model.Product
 import com.example.e_commerce_project.domain.model.Store
 import com.example.e_commerce_project.domain.model.User
@@ -22,6 +23,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
@@ -51,7 +53,12 @@ class HomeViewModel @Inject constructor(
     private val _logOutEffect = Channel<NavigationEffect>()
     val logOutEffect = _logOutEffect.receiveAsFlow()
     private val queryFlow = MutableStateFlow("")
-    lateinit var products: List<Product>
+
+    private val _uiEffect = Channel<Unit>()
+    val uiEffect = _uiEffect.receiveAsFlow()
+
+    private lateinit var filteredProducts: List<Product>
+    private lateinit var allProducts: List<Product>
 //    lateinit var allCategories: Set<Category>
 
     fun onIntent(intent: HomeIntent) {
@@ -71,13 +78,30 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val deferredStores = async { loadStores() }
             val deferredUser = async { loadUser() }
+            allProducts = deferredStores.await().flatMap { it.products }
             _uiState.value = HomeUiState.Success(
                 stores = deferredStores.await(),
                 user = deferredUser.await(),
                 filteredList = emptyList(),
-                allCategories = deferredStores.await().flatMap { it.categories }.toSet()
+                allCategories = deferredStores.await().flatMap { it.categories }
+                    .sortedBy { it.name }.toSet(),
+                products = allProducts
             )
-            products = deferredStores.await().flatMap { it.products }
+        }
+        viewModelScope.launch {
+            uiEffect.collect {
+                val stores = loadStores()
+                allProducts = stores.flatMap { it.products }
+                _uiState.update { state ->
+                    if (state is HomeUiState.Success) {
+                        val currentProducts = state.products
+                        val updated = currentProducts.mapNotNull { old ->
+                            allProducts.find { it.id == old.id }
+                        }
+                        state.copy(products = updated)
+                    } else state
+                }
+            }
         }
         viewModelScope.launch {
             queryFlow
@@ -87,9 +111,9 @@ class HomeViewModel @Inject constructor(
                     _uiState.update { state ->
                         if (state is HomeUiState.Success) {
                             val filteredList = if (query.isBlank()) {
-                                state.stores.flatMap { it.products }
+                                allProducts
                             } else {
-                                state.stores.flatMap { it.products }.filter {
+                                allProducts.filter {
                                     it.title.contains(query, ignoreCase = true)
                                 }
                             }
@@ -102,33 +126,63 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private fun updateFilteredList(){
+        val filteredList = (uiState.value as HomeUiState.Success).filteredList
+        _uiState.update { state ->
+            if (state is HomeUiState.Success) {
+                val filteredProducts = state.filteredList
+//                val updated = currentProducts.mapNotNull { old ->
+//                    allProducts.find { it.id == old.id }
+//                }
+                val updated = filteredList.mapNotNull { old ->
+                    allProducts.find { it.id == old.id }
+                }
+                state.copy(filteredList = updated)
+            } else state
+        }
+    }
     private fun toggleCategory(intent: HomeIntent.CategoryClick) {
-        intent.category.isSelected = !intent.category.isSelected
-        var currentCategories = (_uiState.value as HomeUiState.Success).allCategories.toMutableSet()
-        currentCategories =
-            currentCategories.filterNot { it.name == intent.category.name }.toMutableSet()
-        currentCategories.add(intent.category)
-        val selectedCategoryNames = currentCategories.filter { it.isSelected }.map { it.name }
+
+        val toggledCategory = intent.category.copy(
+            isSelected = !intent.category.isSelected
+        )
+        updateCategories(toggledCategory)
+        filterProductsByCategory()
+    }
+
+    private fun updateCategories(toggledCategory: Category){
+        var currentCategories =
+            (_uiState.value as HomeUiState.Success).allCategories
+                .filterNot { it.name == toggledCategory.name }
+                .toMutableSet()
+                .apply { add(toggledCategory) }
+        currentCategories = currentCategories.sortedBy { it.name }.toMutableSet()
+        _uiState.update { (it as HomeUiState.Success).copy(
+            allCategories = currentCategories
+        ) }
+    }
+    private fun filterProductsByCategory(){
+        val selectedCategoryNames = (uiState.value as HomeUiState.Success).allCategories
+            .filter { it.isSelected }
+            .map { it.name }
+
         _uiState.update { state ->
             if (state is HomeUiState.Success) {
                 state.copy(
-                    allCategories = currentCategories,
-                    products = products.filter { it.category in selectedCategoryNames }
+                    products = if (selectedCategoryNames.isNotEmpty()) {
+                        allProducts.filter { it.category in selectedCategoryNames }
+                    } else allProducts
                 )
-            }
-            state
+            } else state
         }
-//        Şurayı çöz, category filtrelemede sıkıntı var
-
     }
-
     private fun loadProductsByCategory(intent: HomeIntent.CategoryClick) {
         viewModelScope.launch {
             _uiState.update { state ->
                 if (state is HomeUiState.Success) {
                     state.copy(
-                        products = products.filter { it.category == intent.category.name },
-                        isCategorySelected = true,
+                        products = allProducts.filter { it.category == intent.category.name },
+                        //isCategorySelected = true,
 //                        clickedCategory =
                     )
                 } else state
@@ -165,7 +219,9 @@ class HomeViewModel @Inject constructor(
                         id = intent.productId
                     )
                 ).onSuccess {
-                    _uiState.update { (it as HomeUiState.Success).copy(stores = listOf(loadStore("canerture"))) }
+                    _uiEffect.send(Unit)
+                    delay(400)
+                    updateFilteredList()
                 }
                 // Refresh after deletion
             } catch (e: Exception) {
@@ -196,7 +252,6 @@ class HomeViewModel @Inject constructor(
     private fun addToFavorite(intent: HomeIntent.onFavoriteClick) {
         viewModelScope.launch {
             try {
-                val userId = userPreferencesRepository.getUserId()
                 userRepository.addToFavorites(
                     intent.storeName,
                     AddToFavoritesRequest(
@@ -204,7 +259,9 @@ class HomeViewModel @Inject constructor(
                         productId = intent.productId
                     )
                 ).onSuccess {
-                    _uiState.update { (it as HomeUiState.Success).copy(stores = listOf(loadStore("canerture"))) }
+                    _uiEffect.send(Unit)
+                    delay(400)
+                    updateFilteredList()
                 }
                 // You might want to update the UI state to reflect the favorite status
                 Log.d("HomeViewModel", "Product added to favorites successfully")
@@ -241,21 +298,6 @@ class HomeViewModel @Inject constructor(
         return userRepository.getUser(userId.toString()).getOrThrow()
     }
 
-//        viewModelScope.launch {
-//            val userId = userPreferencesRepository.getUserId()
-//            val userResponse = userRepository.getUser(userId.toString())
-//
-//            storeRepository.getStore(store).onSuccess { store ->
-//                _uiState.value = HomeUiState.Success(
-//                    stores = listOf(store),
-//                    user = userResponse.getOrNull()!!,
-//                    categories = emptyList()
-//                )
-//            }.onFailure {
-//                Log.d("HomeViewModel", it.message.toString())
-//            }
-//        }
-//    }
 
     private fun logOut() {
         viewModelScope.launch {
@@ -267,9 +309,4 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun logOutEffect() {
-        viewModelScope.launch {
-            val _logOutEffect = _navEffect
-        }
-    }
 }

@@ -12,13 +12,11 @@ sealed interface HomeUiState {
         val user: User,
         val stores: List<Store>,
         val filteredList: List<Product>,
-        val isCategorySelected: Boolean = false,
         val allCategories: Set<Category> = emptySet(),
         val clickedCategory: List<Category> = emptyList(),
         val products: List<Product> = emptyList(),
         val searchText: String = "",
         val expanded: Boolean = false,
-
         ) : HomeUiState
     data class Empty(
         val message: String = "No data has been found."

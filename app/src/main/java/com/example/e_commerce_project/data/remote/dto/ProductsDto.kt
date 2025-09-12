@@ -27,7 +27,7 @@ data class ProductDto(
     val count: Int,
     val saleState: Boolean
 ) {
-    fun toDomain(): Product {
+    fun toDomain(storeName: String): Product {
         return Product(
             id = id,
             title = title,
@@ -39,7 +39,8 @@ data class ProductDto(
             rate = rate,
             count = count,
             saleState = saleState,
-            isFavorite = false
+            isFavorite = false,
+            storeName = storeName
         )
     }
 }

@@ -2,6 +2,7 @@ package com.example.e_commerce_project.domain.model
 
 data class Product(
     val id: Int,
+    val storeName: String,
     val title: String,
     val price: Double,
     val salePrice: Double,

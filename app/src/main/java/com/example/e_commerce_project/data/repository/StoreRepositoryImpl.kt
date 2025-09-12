@@ -24,7 +24,7 @@ class StoreRepositoryImpl @Inject constructor(
         Log.d("userid", userPreferencesRepository.getUserId()!!)
         val favoriteProducts = userRepository.getFavorites(userPreferencesRepository.getUserId()!!)
         if (response.isSuccessful && response.body()?.status == 200) {
-            val products = response.body()?.products?.map { it.toDomain() }
+            val products = response.body()?.products?.map { it.toDomain(storeName) }
             products?.forEach { product ->
                 favoriteProducts.getOrNull()?.forEach { favoriteProduct ->
                     if (product.id == favoriteProduct.id) {
@@ -71,7 +71,7 @@ class StoreRepositoryImpl @Inject constructor(
     ): Result<Product> {
         val response = apiInterface.getProductDetail(storeName, productId)
         return if (response.isSuccessful && response.body()?.status == 200) {
-            val product = response.body()?.product?.toDomain()
+            val product = response.body()?.product?.toDomain(storeName)
             Log.d("asd", response.body()?.product.toString())
             Log.d("prod", product.toString())
             Result.success(product!!)
@@ -86,7 +86,7 @@ class StoreRepositoryImpl @Inject constructor(
     ): Result<List<Product>> {
         val response = apiInterface.getProductsByCategory(storeName, category)
         if (response.isSuccessful) {
-            val products = response.body()?.products?.map { it.toDomain() }!!
+            val products = response.body()?.products?.map { it.toDomain(storeName) }!!
             return Result.success(products)
         } else {
             return Result.failure(Exception("Unexpected error occurred."))

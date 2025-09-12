@@ -99,7 +99,7 @@ class NetworkUserRepository @Inject constructor(
     ): Result<List<Product>> {
         val response = apiInterface.getFavorites(store, userId)
         return if (response.isSuccessful) {
-            Result.success(response.body()?.products?.map { it.toDomain() }!!)
+            Result.success(response.body()?.products?.map { it.toDomain(store) }!!)
         } else {
             Result.failure(Exception(response.body()?.message))
         }
@@ -111,7 +111,7 @@ class NetworkUserRepository @Inject constructor(
     ): Result<List<Product>> {
         val response = apiInterface.getCartProducts(store, userId)
         return if (response.isSuccessful && response.body()?.status == 200) {
-            Result.success(response.body()?.products?.map { it.toDomain() }!!)
+            Result.success(response.body()?.products?.map { it.toDomain(store) }!!)
         } else {
             Result.failure(Exception(response.body()?.message))
         }

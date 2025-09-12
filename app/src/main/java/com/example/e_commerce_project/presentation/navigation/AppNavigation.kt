@@ -102,7 +102,6 @@ fun AppNavigation() {
                         uiState = uiState,
                     )
                     NavigationHandler(viewModel.navEffect, topLevelBackStack, true)
-
                 }
                 entry<Route.Splash> {
                     val viewModel = hiltViewModel<SplashViewModel>()

@@ -1,8 +1,11 @@
 package com.example.e_commerce_project.presentation.main.productdetail
 
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +17,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -30,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -76,6 +83,20 @@ fun ProductDetailContent(
     isFavorite: Boolean = false,
     onIntent: (ProductDetailIntent) -> Unit
 ) {
+//    val listState = rememberLazyListState(initialFirstVisibleItemIndex = 1)
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(Unit) {
+        // Jump instantly to the 2nd item (index = 1)
+//        listState.animateScrollToItem(1)
+        listState.animateScrollBy(
+            value = 650f,
+            animationSpec = tween(
+                durationMillis = 1200, // make it slower (default ~300ms)
+                easing = LinearOutSlowInEasing
+            )
+        )
+    }
     Column(
         modifier = modifier.fillMaxSize()
     ) {
@@ -85,24 +106,34 @@ fun ProductDetailContent(
                 .fillMaxWidth()
                 .height(300.dp)
         ) {
-            if (product.images.isNotEmpty()) {
-                AsyncImage(
-                    model = product.images[0],
-                    contentDescription = product.title,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Image(
-                    painter = painterResource(R.drawable.ic_launcher_foreground),
-                    contentDescription = "No Image",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentScale = ContentScale.Fit
-                )
+            LazyRow(
+                state = listState
+            ) {
+                if (product.images.isNotEmpty()) {
+                    items(product.images) { imageUrl ->
+                        AsyncImage(
+                            model = imageUrl,
+                            contentDescription = product.title,
+                            modifier = Modifier
+                                .fillParentMaxWidth(0.7f)
+                                .height(300.dp), // control height per image
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                } else {
+                    item {
+                        Image(
+                            painter = painterResource(R.drawable.ic_launcher_foreground),
+                            contentDescription = "No Image",
+                            modifier = Modifier
+                                .fillParentMaxWidth()
+                                .height(300.dp)
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                }
             }
-
             // Favorites button overlay
             IconButton(
                 onClick = {
