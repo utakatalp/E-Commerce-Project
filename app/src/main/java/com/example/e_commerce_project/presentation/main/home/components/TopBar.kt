@@ -102,7 +102,7 @@ fun TopBar(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("Hello ${user.name}", fontSize = 35.sp, fontWeight = FontWeight.W600)
+        Text("Hello ${user.name},", fontSize = 35.sp, fontWeight = FontWeight.W600)
         IconButton(onClick = { onIntent(HomeIntent.onLogoutClick) }) {
             Icon(
                 imageVector = Icons.Outlined.PowerSettingsNew,

@@ -31,10 +31,13 @@ import com.example.e_commerce_project.presentation.main.cart.CartScreen
 import com.example.e_commerce_project.presentation.main.cart.CartViewModel
 import com.example.e_commerce_project.presentation.main.home.HomeScreen
 import com.example.e_commerce_project.presentation.main.home.HomeViewModel
+import com.example.e_commerce_project.presentation.main.home.NewHomeScreen
 import com.example.e_commerce_project.presentation.main.productdetail.ProductDetailScreen
 import com.example.e_commerce_project.presentation.main.productdetail.ProductDetailViewModel
 import com.example.e_commerce_project.presentation.main.profile.ProfileScreen
 import com.example.e_commerce_project.presentation.main.profile.ProfileViewModel
+import com.example.e_commerce_project.presentation.payment.payment.PaymentScreen
+import com.example.e_commerce_project.presentation.payment.payment.PaymentViewModel
 import com.example.e_commerce_project.presentation.splash.SplashScreen
 import com.example.e_commerce_project.presentation.splash.SplashViewModel
 import kotlinx.coroutines.flow.Flow
@@ -129,7 +132,7 @@ fun AppNavigation() {
                 entry<Home> {
                     val viewModel = hiltViewModel<HomeViewModel>()
                     val uiState by viewModel.uiState.collectAsState()
-                    HomeScreen(
+                    NewHomeScreen(
                         modifier = Modifier,
                         uiState = uiState,
                         onIntent = { viewModel.onIntent(it) }
@@ -176,7 +179,15 @@ fun AppNavigation() {
                         onIntent = { viewModel.onIntent(it) }
                     )
                     NavigationHandler(viewModel.navEffect, topLevelBackStack)
-
+                }
+                entry<Route.Payment> {
+                    val viewModel = hiltViewModel<PaymentViewModel>()
+                    val uiState by viewModel.uiState.collectAsState()
+                    PaymentScreen(
+                        uiState = uiState,
+                        onIntent = { viewModel.onIntent(it) }
+                    )
+                    NavigationHandler(viewModel.navEffect, topLevelBackStack)
                 }
             }
         )

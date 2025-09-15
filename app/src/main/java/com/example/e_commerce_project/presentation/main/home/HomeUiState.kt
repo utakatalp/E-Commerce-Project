@@ -17,10 +17,12 @@ sealed interface HomeUiState {
         val products: List<Product> = emptyList(),
         val searchText: String = "",
         val expanded: Boolean = false,
-        ) : HomeUiState
+    ) : HomeUiState
+
     data class Empty(
         val message: String = "No data has been found."
     ) : HomeUiState
+
     data class Error(
         val message: String,
         val throwable: Throwable? = null

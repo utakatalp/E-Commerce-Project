@@ -1,5 +1,6 @@
 package com.example.e_commerce_project.presentation.main.home.components
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -47,8 +48,9 @@ fun ProductCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier
-            .fillMaxWidth(fraction = 0.4f)
+        modifier = Modifier
+            .width(190.dp)
+//            .fillMaxWidth(fraction = 0.4f)
             .padding(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(12.dp)
@@ -70,15 +72,18 @@ fun ProductCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(160.dp)
+                    .height(160.dp),
+                contentAlignment = Alignment.Center
             ) {
                 if (product.images.isNotEmpty()) {
+//                    Log.d("ProductCard", "Product images: ${product.images}")
                     Image(
                         painter = rememberAsyncImagePainter(product.images[0]),
                         contentDescription = product.title,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.width(180.dp),
                         contentScale = ContentScale.Crop
                     )
+//                    Text(product.images[0])
                 } else {
                     Box(
                         modifier = Modifier
@@ -134,7 +139,9 @@ fun ProductCard(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp)
+                    .height(200.dp)
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
                 // Title
                 Text(
@@ -150,14 +157,15 @@ fun ProductCard(
 
                 // Price section
                 if (product.saleState) {
-                    Column {
+                    Row {
                         Text(
                             text = "${product.price} ₺",
-                            style = MaterialTheme.typography.bodySmall.copy(
+                            style = MaterialTheme.typography.titleSmall.copy(
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                                 textDecoration = TextDecoration.LineThrough
                             )
                         )
+                        Spacer(Modifier.width(4.dp))
                         Text(
                             text = "${product.salePrice} ₺",
                             style = MaterialTheme.typography.titleSmall.copy(

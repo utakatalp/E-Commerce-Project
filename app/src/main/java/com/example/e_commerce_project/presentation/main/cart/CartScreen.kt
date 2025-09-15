@@ -180,7 +180,7 @@ fun CartTabContent(
             // Cart Summary and Checkout
             CartSummary(
                 products = products,
-                onCheckout = { /* Handle checkout */ }
+                onCheckout = { onIntent(CartIntent.onPaymentClick) }
             )
         }
     }

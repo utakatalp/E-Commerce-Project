@@ -22,6 +22,7 @@ sealed interface Route : NavKey {
     data object Home : Route
     data object Cart : Route
     data object Profile : Route
+    data object Payment : Route
     data class ProductDetail(val storeName: String, val productId: String) : Route
 
 }

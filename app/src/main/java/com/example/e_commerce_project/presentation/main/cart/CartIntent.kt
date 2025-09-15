@@ -4,6 +4,7 @@ sealed interface CartIntent {
     data class deleteFromCart(val productId: Int) : CartIntent
     data class deleteFromFavorites(val productId: Int) : CartIntent
     data class onProductClick(val id: String, val storeName: String) : CartIntent
+    object onPaymentClick : CartIntent
     object RefreshCart : CartIntent
     object Checkout : CartIntent
 

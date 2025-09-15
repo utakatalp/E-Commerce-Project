@@ -1,5 +1,6 @@
 package com.example.e_commerce_project.presentation.main.home.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,11 +40,10 @@ fun CategoryCard(
     category: Category,
     onIntent: (HomeIntent) -> Unit
 ) {
-    val strokeWidth = 1.dp
     Box(
         modifier = Modifier
             .height(height = 40.dp)
-
+            .background(Color.Transparent)
     ) {
         Card(
             onClick = {

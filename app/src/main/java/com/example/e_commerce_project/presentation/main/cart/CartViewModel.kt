@@ -7,6 +7,7 @@ import com.example.e_commerce_project.data.remote.dto.response.DeleteFromCartReq
 import com.example.e_commerce_project.data.remote.dto.response.DeleteFromFavoritesRequest
 import com.example.e_commerce_project.domain.repository.UserPreferencesRepository
 import com.example.e_commerce_project.domain.repository.UserRepository
+import com.example.e_commerce_project.presentation.main.home.HomeIntent
 import com.example.e_commerce_project.presentation.navigation.NavigationEffect
 import com.example.e_commerce_project.presentation.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,6 +40,7 @@ class CartViewModel @Inject constructor(
             is CartIntent.onProductClick -> navigateToProduct(intent)
             is CartIntent.RefreshCart -> loadCartAndFavorites()
             is CartIntent.Checkout -> handleCheckout()
+            is CartIntent.onPaymentClick -> navigateToPayment()
         }
     }
 
@@ -106,6 +108,11 @@ class CartViewModel @Inject constructor(
         }
     }
 
+    private fun navigateToPayment() {
+        viewModelScope.launch {
+            _navEffect.send(NavigationEffect(Route.Payment))
+        }
+    }
     private fun navigateToProduct(intent: CartIntent.onProductClick) {
         viewModelScope.launch {
             _navEffect.send(NavigationEffect(Route.ProductDetail(intent.storeName, intent.id)))

@@ -6,6 +6,7 @@ data class Address(
     val address: String,
 )
 
-data class AddressList(
-    val addresses: List<Address>
+data class AddressWithCheck(
+    val address: Address,
+    var isChecked: Boolean = false,
 )

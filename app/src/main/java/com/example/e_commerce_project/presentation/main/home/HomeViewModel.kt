@@ -98,7 +98,10 @@ class HomeViewModel @Inject constructor(
                         val updated = currentProducts.mapNotNull { old ->
                             allProducts.find { it.id == old.id }
                         }
-                        state.copy(products = updated)
+                        state.copy(
+                            products = updated,
+                            stores = stores
+                        )
                     } else state
                 }
             }
@@ -126,7 +129,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun updateFilteredList(){
+    private fun updateFilteredList() {
         val filteredList = (uiState.value as HomeUiState.Success).filteredList
         _uiState.update { state ->
             if (state is HomeUiState.Success) {
@@ -141,6 +144,7 @@ class HomeViewModel @Inject constructor(
             } else state
         }
     }
+
     private fun toggleCategory(intent: HomeIntent.CategoryClick) {
 
         val toggledCategory = intent.category.copy(
@@ -150,18 +154,21 @@ class HomeViewModel @Inject constructor(
         filterProductsByCategory()
     }
 
-    private fun updateCategories(toggledCategory: Category){
+    private fun updateCategories(toggledCategory: Category) {
         var currentCategories =
             (_uiState.value as HomeUiState.Success).allCategories
                 .filterNot { it.name == toggledCategory.name }
                 .toMutableSet()
                 .apply { add(toggledCategory) }
         currentCategories = currentCategories.sortedBy { it.name }.toMutableSet()
-        _uiState.update { (it as HomeUiState.Success).copy(
-            allCategories = currentCategories
-        ) }
+        _uiState.update {
+            (it as HomeUiState.Success).copy(
+                allCategories = currentCategories
+            )
+        }
     }
-    private fun filterProductsByCategory(){
+
+    private fun filterProductsByCategory() {
         val selectedCategoryNames = (uiState.value as HomeUiState.Success).allCategories
             .filter { it.isSelected }
             .map { it.name }
@@ -176,6 +183,7 @@ class HomeViewModel @Inject constructor(
             } else state
         }
     }
+
     private fun loadProductsByCategory(intent: HomeIntent.CategoryClick) {
         viewModelScope.launch {
             _uiState.update { state ->
@@ -274,8 +282,6 @@ class HomeViewModel @Inject constructor(
 
     private fun navigateToProduct(intent: HomeIntent.onProductClick) {
         viewModelScope.launch {
-            //                _navEffect.send(NavigationEffect("product_detail/${intent.storeName}/${intent.id}"))
-            Log.d("flow before", "${intent.id}, ${intent.storeName}")
             _navEffect.send(NavigationEffect(Route.ProductDetail(intent.storeName, intent.id)))
         }
     }
