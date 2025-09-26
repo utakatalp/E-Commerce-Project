@@ -310,7 +310,7 @@ class HomeViewModel @Inject constructor(
             if (userRepository.logOut().isSuccess) {
 //                _navEffect.send(NavigationEffect(DalmarScreen.WELCOME.name))
 //                _logOutEffect.send(NavigationEffect(DalmarScreen.WELCOME.name))
-                _logOutEffect.send(NavigationEffect(Welcome))
+                _logOutEffect.send(NavigationEffect(Route.Splash))
             }
         }
     }

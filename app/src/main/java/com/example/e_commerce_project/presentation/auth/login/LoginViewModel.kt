@@ -43,7 +43,6 @@ open class LoginViewModel @Inject constructor(
 
     private fun navigateToForgotPassword() {
         viewModelScope.launch {
-//            _navEffect.send(NavigationEffect(DalmarScreen.FORGOT_PASSWORD.name))
             _navEffect.send(NavigationEffect(Route.ForgotPassword))
         }
     }
@@ -63,7 +62,6 @@ open class LoginViewModel @Inject constructor(
 
                 response
                     .onSuccess {
-//                        _navEffect.send(NavigationEffect(DalmarScreen.HOME.name))
                         _navEffect.send(NavigationEffect(Home))
                     }
                     .onFailure {

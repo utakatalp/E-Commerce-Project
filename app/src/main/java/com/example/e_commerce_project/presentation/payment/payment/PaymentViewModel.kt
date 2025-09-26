@@ -23,7 +23,6 @@ class PaymentViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<PaymentUiState>(PaymentUiState.Loading)
     val uiState = _uiState.asStateFlow()
-
     private val _navEffect = Channel<NavigationEffect>()
     val navEffect = _navEffect.receiveAsFlow()
 

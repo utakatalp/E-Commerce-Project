@@ -215,10 +215,6 @@ private fun CustomizableSearchBar(
             LazyVerticalGrid(columns = GridCells.Fixed(1)) {
                 items(searchResults.size) { index ->
                     val result = searchResults[index]
-//                    ProductCard(
-//                        onIntent = onIntent,
-//                        product = result
-//                    )
                     SearchedProductCard(
                         onIntent = onIntent,
                         product = result,

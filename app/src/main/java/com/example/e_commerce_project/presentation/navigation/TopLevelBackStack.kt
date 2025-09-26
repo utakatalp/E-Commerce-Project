@@ -53,11 +53,8 @@ class TopLevelBackStack<T : Any>(startKey: T) {
         updateBackStack()
     }
 
-    fun clearStack(key: T) {
-        val removedKey = topLevelStacks[topLevelKey]?.removeLastOrNull()
-        topLevelStacks.remove(topLevelKey)
-        topLevelKey = key
-        updateBackStack()
+    fun clearStack() {
+        topLevelStacks.clear()
     }
 
     fun removeLast() {
