@@ -35,7 +35,6 @@ import com.example.e_commerce_project.presentation.main.home.components.TopBar
 
 @Composable
 fun HomeScreen(
-    modifier: Modifier = Modifier,
     uiState: HomeUiState,
     onIntent: (HomeIntent) -> Unit
 ) {
@@ -161,10 +160,11 @@ fun LoadingContent(modifier: Modifier = Modifier) {
 
 @Composable
 fun EmptyContent(
+    modifier: Modifier = Modifier,
     message: String,
     onRetry: () -> Unit = { },
-    modifier: Modifier = Modifier
-) {
+
+    ) {
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
