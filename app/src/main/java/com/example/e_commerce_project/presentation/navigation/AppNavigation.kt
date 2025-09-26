@@ -130,7 +130,6 @@ fun AppNavigation() {
                     val viewModel = hiltViewModel<HomeViewModel>()
                     val uiState by viewModel.uiState.collectAsState()
                     HomeScreen(
-                        modifier = Modifier,
                         uiState = uiState,
                         onIntent = { viewModel.onIntent(it) }
                     )
