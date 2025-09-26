@@ -1,27 +1,13 @@
 # The project being developed during my Android Developer internship.
 
-## 28.07.2025
-- Login, Register, Welcome, and Forgot Password screens have been added.
-- Navigation between the screens has been implemented.
-- A top bar for login and register screens has been added using Scaffold.
-<img width="197.5" height="411.5" alt="image" src="https://github.com/user-attachments/assets/0667a6a8-92bc-47aa-9f7a-55220bc5a4d6" />
-<img width="197.5" height="411.5" alt="image" src="https://github.com/user-attachments/assets/c62fbff4-afd5-470a-9efa-f71149ccc308" />
-<img width="197.5" height="411.5" alt="image" src="https://github.com/user-attachments/assets/28407049-988b-49e2-97cb-68dd84c422b2" />
-<img width="197.5" height="411.5" alt="image" src="https://github.com/user-attachments/assets/9e59ed92-b578-475c-800d-9e1297358eeb" />
+<img width="438" height="970" alt="Screenshot 2025-09-26 at 12 27 44" src="https://github.com/user-attachments/assets/f1bd1f2f-5e29-499f-8b2d-4d3b72bb0b39" /><img width="438" height="969" alt="Screenshot 2025-09-26 at 14 27 57" src="https://github.com/user-attachments/assets/902fe560-99cc-47fc-8e7c-0092c60e75d0" />
 
-## 29.07.2025
-- Project's architecture has been updated to MVI architecture.
-- SOLID validation functions for register operation has been added.
-- The project folder structure has been updated by package by feature.
+<img width="440" height="969" alt="Screenshot 2025-09-26 at 12 27 35" src="https://github.com/user-attachments/assets/9a7f4dc9-0fb8-4883-bfe6-00d77bb66e0d" />
+<img width="442" height="968" alt="Screenshot 2025-09-26 at 12 25 48" src="https://github.com/user-attachments/assets/da65436f-e898-4f2c-9cd8-f36907d21d1d" />
+<img width="441" height="968" alt="Screenshot 2025-09-26 at 12 24 32" src="https://github.com/user-attachments/assets/1d251083-c18e-4e0b-8e56-0655109bfa66" />
+<img width="440" height="970" alt="Screenshot 2025-09-26 at 12 24 02" src="https://github.com/user-attachments/assets/cc3c6759-3237-4347-bfa5-ed009391b151" />
+<img width="442" height="969" alt="Screenshot 2025-09-26 at 12 23 47" src="https://github.com/user-attachments/assets/ed60f9cf-4bae-4450-ba3c-1763e0bbe2fe" />
+<img width="438" height="966" alt="Screenshot 2025-09-26 at 12 23 17" src="https://github.com/user-attachments/assets/101caae9-dfd1-409f-a2ad-04c13e93f79a" />
+<img width="442" height="970" alt="Screenshot 2025-09-26 at 12 22 58" src="https://github.com/user-attachments/assets/0187d82c-927b-4268-bb82-85515d26eaf5" />
+<img width="440" height="969" alt="Screenshot 2025-09-26 at 12 22 45" src="https://github.com/user-attachments/assets/33a98bef-7161-4b3c-9f97-ad8b0c7a169b" />
 
-## 01.08.2025
-- API instances have been initialized using Retrofit.
-- Login and registration requests are performed via API calls under the required conditions.
-
-## 02.08.2025
-- Manual Dependency Injection has been implemented.
-
-## 03.08.2025
-- Manual dependency injection has been removed; dependency injection is now provided by Hilt.
-- Some visual bugs on the password screens have been fixed.
--Navigation operations for going back are now handled by the back stack, and so on.
