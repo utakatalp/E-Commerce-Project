@@ -28,8 +28,8 @@ import com.example.e_commerce_project.presentation.auth.welcome.WelcomeScreen
 import com.example.e_commerce_project.presentation.auth.welcome.WelcomeViewModel
 import com.example.e_commerce_project.presentation.main.cart.CartScreen
 import com.example.e_commerce_project.presentation.main.cart.CartViewModel
+import com.example.e_commerce_project.presentation.main.home.HomeScreen
 import com.example.e_commerce_project.presentation.main.home.HomeViewModel
-import com.example.e_commerce_project.presentation.main.home.NewHomeScreen
 import com.example.e_commerce_project.presentation.main.productdetail.ProductDetailScreen
 import com.example.e_commerce_project.presentation.main.productdetail.ProductDetailViewModel
 import com.example.e_commerce_project.presentation.main.profile.ProfileScreen
@@ -129,7 +129,7 @@ fun AppNavigation() {
                 entry<Home> {
                     val viewModel = hiltViewModel<HomeViewModel>()
                     val uiState by viewModel.uiState.collectAsState()
-                    NewHomeScreen(
+                    HomeScreen(
                         modifier = Modifier,
                         uiState = uiState,
                         onIntent = { viewModel.onIntent(it) }

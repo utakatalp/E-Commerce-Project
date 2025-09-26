@@ -1,44 +1,37 @@
 package com.example.e_commerce_project.presentation.main.home
 
-import android.util.Log
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.clickable
+import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.e_commerce_project.domain.model.Category
-import com.example.e_commerce_project.domain.model.Product
-import com.example.e_commerce_project.domain.model.Store
-import com.example.e_commerce_project.domain.model.User
 import com.example.e_commerce_project.presentation.main.home.components.CategoryCard
+import com.example.e_commerce_project.presentation.main.home.components.CustomizableSearchBar
 import com.example.e_commerce_project.presentation.main.home.components.ProductCard
-import com.example.e_commerce_project.presentation.main.home.components.SearchedProductCard
 import com.example.e_commerce_project.presentation.main.home.components.TopBar
+
 
 @Composable
 fun HomeScreen(
@@ -53,18 +46,19 @@ fun HomeScreen(
         is HomeUiState.Success -> HomeContent(
             uiState = uiState,
             onIntent = onIntent,
-            modifier = modifier
         )
     }
 }
 
+@SuppressLint("FrequentlyChangingValue")
 @Composable
 fun HomeContent(
-    modifier: Modifier,
     uiState: HomeUiState.Success,
     onIntent: (HomeIntent) -> Unit
 ) {
-    Column(modifier = modifier) {
+    val gridState = rememberLazyGridState()
+    val categoryState = rememberLazyListState()
+    Column {
         TopBar(
             onIntent = onIntent,
             user = uiState.user,
@@ -76,24 +70,76 @@ fun HomeContent(
             onSearch = { onIntent(HomeIntent.Search(it)) },
             onExpandedChange = { onIntent(HomeIntent.ExpandSearch(it)) },
             searchResults = uiState.filteredList,
-            uiState = uiState
+            uiState = uiState,
         )
-        LazyRow(
-            contentPadding = PaddingValues(
-                10.dp
-            ),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            itemsIndexed(uiState.allCategories.toList()) { index, item ->
-                CategoryCard(
-                    category = item,
-                    onIntent = onIntent
-                )
-            }
-        }
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+            state = gridState,
+            columns = GridCells.Fixed(2)
         ) {
+            stickyHeader {
+                Column {
+                    if (gridState.firstVisibleItemIndex > 2) {
+                        LazyRow(
+                            state = categoryState,
+                            contentPadding = PaddingValues(10.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.background(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.LightGray.copy(alpha = 0.9f),
+                                        Color.Transparent
+                                    )
+                                )
+                            )
+                        ) {
+                            itemsIndexed(uiState.allCategories.toList()) { _, item ->
+                                CategoryCard(category = item, onIntent = onIntent)
+                            }
+                        }
+                    }
+                }
+            }
+
+            uiState.stores.forEach { store ->
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)
+                    ) {
+                        Text(
+                            "${store.name}'s store: ",
+                            modifier = Modifier.padding(8.dp)
+                        )
+                        LazyRow {
+                            items(store.products) { product ->
+                                ProductCard(
+                                    product = product,
+                                    onIntent = onIntent,
+                                    isFavorite = product.isFavorite
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                val visible = gridState.firstVisibleItemIndex <= 2
+                LazyRow(
+                    state = categoryState,
+                    contentPadding = PaddingValues(
+                        10.dp
+                    ),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.alpha(if (visible) 1f else 0f)
+                ) {
+                    itemsIndexed(uiState.allCategories.toList()) { index, item ->
+                        CategoryCard(
+                            category = item,
+                            onIntent = onIntent
+                        )
+                    }
+                }
+            }
+
             items(uiState.products.size) { index ->
                 val product = uiState.products[index]
                 ProductCard(
@@ -105,7 +151,6 @@ fun HomeContent(
         }
     }
 }
-
 @Composable
 fun LoadingContent(modifier: Modifier = Modifier) {
     Box(
@@ -150,122 +195,3 @@ fun ErrorContent(
         }
     }
 }
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun CustomizableSearchBar(
-    onIntent: (HomeIntent) -> Unit,
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onSearch: (String) -> Unit,
-    onExpandedChange: (Boolean) -> Unit,
-    searchResults: List<Product>,
-    uiState: HomeUiState.Success
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-        // Search bar stays at the top
-        SearchBar(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .fillMaxWidth()
-                .padding(horizontal = if(uiState.expanded){
-                    0.dp
-                } else 10.dp), // horizontal center
-            inputField = {
-                SearchBarDefaults.InputField(
-                    query = query,
-                    onQueryChange = onQueryChange,
-                    onSearch = {
-                        onSearch(query)
-                        onExpandedChange(false)
-                    },
-                    placeholder = { Text("Search") },
-                    expanded = uiState.expanded,
-                    onExpandedChange = { onExpandedChange(it) },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-                    trailingIcon = {
-                        Icon(
-                            Icons.Default.Close,
-                            contentDescription = "Clear",
-                            modifier = Modifier.clickable {
-                                if (query.isBlank()) {
-                                    onExpandedChange(false)
-                                } else {
-                                    onQueryChange("")
-                                }
-                            }
-                        )
-                    }
-                )
-            },
-            windowInsets = WindowInsets(top = 0.dp),
-            expanded = uiState.expanded,
-            onExpandedChange = { onExpandedChange(uiState.expanded) }
-        ) {
-            BackHandler(enabled = uiState.expanded) {
-                Log.d("BackHandler", "Back pressed")
-                onExpandedChange(false)
-            }
-
-            LazyVerticalGrid(columns = GridCells.Fixed(1)) {
-                items(searchResults.size) { index ->
-                    val result = searchResults[index]
-                    SearchedProductCard(
-                        onIntent = onIntent,
-                        product = result,
-                        isFavorite = result.isFavorite
-                    )
-                }
-            }
-        }
-    }
-}
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun HomeContentPreview() {
-    // Dummy data
-    val sampleUser = User(
-        id = "1",
-        name = "John Doe",
-        email = "john@example.com",
-        phone = ""
-    )
-
-    val sampleCategories = setOf(
-        Category(name = "Electronics", isSelected = false, image = ""),
-        Category(name = "Clothing", isSelected = true, image = ""),
-        Category(name = "Books", isSelected = false, image = "")
-    )
-
-    val sampleProducts: List<Product> = emptyList()
-
-    val sampleStores = listOf(
-        Store(
-            name = "Tech Store",
-            products = sampleProducts,
-            categories = sampleCategories.toList()
-        )
-    )
-
-    val sampleState = HomeUiState.Success(
-        user = sampleUser,
-        stores = sampleStores,
-        filteredList = sampleProducts,
-        allCategories = sampleCategories,
-        clickedCategory = emptyList(),
-        products = sampleProducts,
-        searchText = "",
-        expanded = false
-    )
-
-    HomeContent(
-        modifier = Modifier,
-        uiState = sampleState,
-        onIntent = {}
-    )
-}
-
-
