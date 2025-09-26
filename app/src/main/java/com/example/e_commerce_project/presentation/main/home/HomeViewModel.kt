@@ -15,7 +15,6 @@ import com.example.e_commerce_project.domain.repository.UserPreferencesRepositor
 import com.example.e_commerce_project.domain.repository.UserRepository
 import com.example.e_commerce_project.presentation.navigation.NavigationEffect
 import com.example.e_commerce_project.presentation.navigation.Route
-import com.example.e_commerce_project.presentation.navigation.Welcome
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -57,9 +56,7 @@ class HomeViewModel @Inject constructor(
     private val _uiEffect = Channel<Unit>()
     val uiEffect = _uiEffect.receiveAsFlow()
 
-    private lateinit var filteredProducts: List<Product>
     private lateinit var allProducts: List<Product>
-//    lateinit var allCategories: Set<Category>
 
     fun onIntent(intent: HomeIntent) {
         when (intent) {
@@ -133,10 +130,6 @@ class HomeViewModel @Inject constructor(
         val filteredList = (uiState.value as HomeUiState.Success).filteredList
         _uiState.update { state ->
             if (state is HomeUiState.Success) {
-                val filteredProducts = state.filteredList
-//                val updated = currentProducts.mapNotNull { old ->
-//                    allProducts.find { it.id == old.id }
-//                }
                 val updated = filteredList.mapNotNull { old ->
                     allProducts.find { it.id == old.id }
                 }
@@ -184,20 +177,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun loadProductsByCategory(intent: HomeIntent.CategoryClick) {
-        viewModelScope.launch {
-            _uiState.update { state ->
-                if (state is HomeUiState.Success) {
-                    state.copy(
-                        products = allProducts.filter { it.category == intent.category.name },
-                        //isCategorySelected = true,
-//                        clickedCategory =
-                    )
-                } else state
-            }
-        }
-    }
-
     private fun onExpand(intent: HomeIntent.ExpandSearch) {
         _uiState.update { current ->
             when (current) {
@@ -241,7 +220,6 @@ class HomeViewModel @Inject constructor(
     private fun addToCart(intent: HomeIntent.onAddToCartClick) {
         viewModelScope.launch {
             try {
-                val userId = userPreferencesRepository.getUserId()
                 userRepository.addToCart(
                     intent.storeName,
                     AddToCartRequest(
@@ -271,7 +249,6 @@ class HomeViewModel @Inject constructor(
                     delay(400)
                     updateFilteredList()
                 }
-                // You might want to update the UI state to reflect the favorite status
                 Log.d("HomeViewModel", "Product added to favorites successfully")
             } catch (e: Exception) {
                 Log.e("HomeViewModel", "Error adding to favorites", e)
@@ -308,8 +285,6 @@ class HomeViewModel @Inject constructor(
     private fun logOut() {
         viewModelScope.launch {
             if (userRepository.logOut().isSuccess) {
-//                _navEffect.send(NavigationEffect(DalmarScreen.WELCOME.name))
-//                _logOutEffect.send(NavigationEffect(DalmarScreen.WELCOME.name))
                 _logOutEffect.send(NavigationEffect(Route.Splash))
             }
         }

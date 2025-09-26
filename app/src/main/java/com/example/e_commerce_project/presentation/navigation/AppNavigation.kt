@@ -1,6 +1,5 @@
 package com.example.e_commerce_project.presentation.navigation
 
-import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -14,7 +13,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation.NavHostController
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
@@ -30,7 +28,6 @@ import com.example.e_commerce_project.presentation.auth.welcome.WelcomeScreen
 import com.example.e_commerce_project.presentation.auth.welcome.WelcomeViewModel
 import com.example.e_commerce_project.presentation.main.cart.CartScreen
 import com.example.e_commerce_project.presentation.main.cart.CartViewModel
-import com.example.e_commerce_project.presentation.main.home.HomeScreen
 import com.example.e_commerce_project.presentation.main.home.HomeViewModel
 import com.example.e_commerce_project.presentation.main.home.NewHomeScreen
 import com.example.e_commerce_project.presentation.main.productdetail.ProductDetailScreen
